@@ -1,6 +1,7 @@
 "use strict";
 var Atomic = window.Atomic || {};
 
+//TODO: Events when added to or removed from the stage
 Atomic.World = function()
 {
 	this.camera = null;

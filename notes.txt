@@ -14,7 +14,7 @@ Features, vaguely prioritised: (Priority is for the basics of each feature, not 
 * Sound/Music - Panning, volume, stop, start, positioning, "sound sprites" - Web Audio API if possible, might need the SoundManager flash stuff though :(
 * Debug tools - console, frame step, pluggable watch UI
 * Tweening
-* Game saves
+* Game saves/storage
 * Text transforms - Like tweening some text along a curved path... Also bitmap fonts
 * Web fonts
 * Screenshot tool
@@ -75,7 +75,7 @@ For performance, pre-draw tiled backgrounds to a larger canvas when the level st
 Or, remember that we can do 2D in webgl and use the graphics card.
 How do I make it so that I have the code that loads up all of the modules when I'm developing, but not have it in there when using a minified/concatenated version? Do I need r.js after all?
 When loading an Ogmo level (or potentially other XML files), rather than writing the XML file to the filesystem cache, write the converted JSON instead to save doing again.
-
+Better terminology for Graphics. An image file that contains one single image is a Sprite (to distinguish from DOM Image - FP uses Image). A Spritemap contains animations. A Tileset contains many tiles in a grid. A GraphicList contains zero or more Graphics.
 Error handling EVERYWHERE.
 
 Other frameworks to investigate:

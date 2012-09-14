@@ -49,6 +49,7 @@ var Atomic = (function()
 			atomic.scale  = options.scale     || atomic.scale;
 			var container = options.container || document.body;
 			container.appendChild(atomic.stage);
+			container.style.backgroundColor = "#000000"; // TODO: Background color should be configurable
 			// TODO: maybe abstract away atomic.stage elsewhere so that it could have multiple layers, be 2d or webgl or not even canvas or whatever
 			atomic.stage.width = atomic.width * atomic.scale;
 			atomic.stage.height = atomic.height * atomic.scale;
@@ -76,7 +77,7 @@ var Atomic = (function()
 	];
 
 	var headScript = document.createElement("script");
-	headScript.src = "libs/head.load.min.js";
+	headScript.src = "libs/atomic/head.load.min.js";
 	headScript.onload = function()
 	{
 		head.js.apply(head, scriptQueue);
