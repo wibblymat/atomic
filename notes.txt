@@ -1,0 +1,249 @@
+Engine/Template design
+----------------------
+This document will one day evolve into the engine hacking guide, no doubt.
+
+Features, vaguely prioritised: (Priority is for the basics of each feature, not for fully complete)
+* Input
+* Asset loading
+* Sprite/tile sheets including animations
+* Tile maps - ultimately would be nice to support several formats, but starting with Ogmo level format
+* Camera - Pan, rotate, zoom, filters...? Ooh, *multiple* cameras? Allows things like a magnifying glass
+* Multi-layer level maps - TMX format, probably
+* Collision - pixel and grid based hit detection
+* Backdrops, possibly repeated tiles.
+* Sound/Music - Panning, volume, stop, start, positioning, "sound sprites" - Web Audio API if possible, might need the SoundManager flash stuff though :(
+* Debug tools - console, frame step, pluggable watch UI
+* Tweening
+* Game saves
+* Text transforms - Like tweening some text along a curved path... Also bitmap fonts
+* Web fonts
+* Screenshot tool
+* Stuff to do with packaging for Chrome Store or similar.
+* Player analytics - how long did people play, where did they die, what routes did they take? This is obviously a playtest/beta test feature but would be invaluable to developers
+* Simple AI features? Path finding, sure.
+* Plugin/module system. Requires a community to be worth it so don't even bother till we have something to go public with.
+* Internationalisation (string localisation at least)
+
+Scaffolding:
+* Menus
+* Splash screens
+* Pixel fonts
+* Box2D?
+
+Far off dreamland ideas:
+* Bret Victor style prototyping/editing tools
+
+Things to read:
+---------------
+http://backbonetutorials.com/organizing-backbone-using-modules/
+https://github.com/bjorn/tiled/wiki/TMX-Map-Format
+http://www.khronos.org/registry/typedarray/specs/latest/
+http://animation.about.com/od/flashanimationtutorials/qt/flasheasetween.htm
+http://jamiethompson.co.uk/web/2008/06/17/publish-subscribe-with-jquery/
+http://www.schillmania.com/projects/soundmanager2/
+http://stackoverflow.com/questions/2911822/javascript-execute-a-bunch-of-asynchronous-method-with-one-callback
+http://api.jquery.com/category/deferred-object/
+http://www.html5rocks.com/en/tutorials/async/deferred/
+http://www.youtube.com/watch?v=me3BviH3nZc
+http://www.html5rocks.com/en/tutorials/file/filesystem/
+http://www.html5rocks.com/en/tutorials/webgl/webgl_fundamentals/
+http://www.html5rocks.com/en/tutorials/casestudies/subsonic/
+http://www.html5canvastutorials.com/labs/html5-canvas-text-along-arc-path/
+https://github.com/happyworm/jPlayer
+http://mediaelementjs.com/
+http://ejohn.org/blog/ecmascript-5-objects-and-properties/
+http://espadrine.github.com/New-In-A-Spec/es6/
+http://stackoverflow.com/questions/4152931/javascript-inheritance-call-super-constructor-or-use-prototype-chain
+
+Things to think about:
+----------------------
+Sprites and other images... An entity should have a "graphic" that can be any of a whole bunch of things. An image, a set of images postioned relative to each other, an animation. A set of animations positioned relative to each other, in fact.
+Use custom events for things, so use a "frame" event so that things that happen each frame can happen, etc. Events might include switching the active world, losing focus, destroying an entity, etc.
+While I am currently basing lots of API on Flashpunk, lets not forget about other game engines. Check out the docs and techniques in other game frameworks, particularly HTML5 ones (some listed below).
+May want to consider rewriting the functionality of head.js that I actually want, as part of the asset manager.
+Possible also that if I were to stick to HTML5 audio that soundmanager is total overkill. Maybe. The flash stuff is nice though.
+Don't worry too much about supporting things that aren't the latest version of chrome to start off with. Get it working, then refactor when testing in other browsers.
+iPhone/Android support would be nice I guess, but it is NOT a target of this project. Chrome web store is, though.
+Have to make decisions about which parts of the engine are static/global and which things are classes or just local objects
+Have a fullscreen mode. Find a way to have the resolution of the game be independent of the size of the canvas without the interpolation problem.
+Google Closure Compiler seems pretty cool and type annotations and other jsdoc stuff will be useful for API documentation...
+Can we do anything to help people working with international keyboards? Give help on picking alternatives to WASD for example?
+My Key mapping appears to have got switched around... what did I do wrong here? Is this ok?
+Maybe re-think the no smartphones/tablets thing in the overview. Touch events aren't hard to add to the engine (though maybe hard to add to a game well). Hmm, ponder. I think that ignoring non-left mouse clicks is probably the right thing to do though.
+ES5 is well supported so if we want to use things like getters and setters we can.
+For performance, pre-draw tiled backgrounds to a larger canvas when the level starts and then just move that around. Also, mutiple canvases, perhaps one per layer. Only redraw layers that change. Only redraw *parts* of layers that change, even. Animated backgrounds will be lower performance of course, but we knew that.
+Or, remember that we can do 2D in webgl and use the graphics card.
+How do I make it so that I have the code that loads up all of the modules when I'm developing, but not have it in there when using a minified/concatenated version? Do I need r.js after all?
+When loading an Ogmo level (or potentially other XML files), rather than writing the XML file to the filesystem cache, write the converted JSON instead to save doing again.
+
+Error handling EVERYWHERE.
+
+Other frameworks to investigate:
+--------------------------------
+http://impactjs.com/documentation
+http://flashpunk.net/docs/
+http://craftyjs.com/api/
+http://limejs.digitalfruit.ee/docs/
+http://www.melonjs.org/docs/
+http://flixel.org/docs/
+http://alleg.sourceforge.net/a5docs/refman/index.html
+http://api.gamvas.com/files/gamvas-base-js.html
+http://storymoto.gamamoto.com/StorymotoUserGuide.htm
+https://love2d.org/wiki/love
+http://cocos2d.org/doc.html
+
+Decisions made:
+---------------
+Timing is done in floating point milliseconds using the Web Timing API. Atomic.elapsed tells you how long passed between the start of the previous frame and the start of this one.
+
+Version 1.0 will fully support the most recent stable version of each of most used desktop browsers - Chrome, Internet Explorer, Firefox, Opera and Safari. There will be no attempt to support anything else, including older versions of these browsers.
+
+Early versions will only support the latest stable release of Chrome.
+
+The library is released under a 2-clause BSD license (The "Simplified BSD License").
+
+Documentation
+=============
+
+This is a mixed bag of stuff. Some things are written as end user documentation, giving the feel of how it will be used. Some is guidance for hackers on the library. And there are also some vague ideas about how a feature might work or be implemented. I have put a note on the section headings describing the approximate type of the section.
+
+	Hacking - About how things are implemented and the reasons for it.
+	User - End user documentation.
+	Design - Rough notes to guide the initial implementation.
+
+
+Overview (Hacking/User)
+--------
+This library/framework is designed to help build 2D games using javascript and HTML5 for modern web browsers. There are some key goals:
+
+	*	Quick to prototype a new idea.
+	*	Simple to extend per-project.
+	*	Cover all of the basic functionality required for games.
+	*	Abstract away the details of HTML5. The API is about games.
+	*	Support a wide variety of up-to-date browsers.
+	*	Not interfere with any other libraries the user wants to use.
+	*	Perform reasonably well
+	*	Convention over configuration
+
+These things are not goals
+	*	Totally optimised performance
+	*	Support older browsers
+	*	Support for smartphones, tablets or other non-desktop platforms
+	*	Being small
+
+Anything on the second list that we do achieve is all to the good, we just wont be spending any extra effort to do so.
+
+During this pre-release phase "older browser" is everything except the latest major version of Chrome, though we should not do anything that we already know will break in Firefox or Internet Explorer if we can avoid it.
+
+To keep the scope of the project small and keep the number of configurable options low, there are two other implicit items on these lists. The goals really include "Things that I want the framework to do" and the non-goals include "Things I wouldn't use myself". By making the framework extendable we can hopefully accomodate everyone without adding too much to the core.
+
+Getting Started (User)
+---------------
+Here is the project layout convention:
+/project
+	/assets
+		/spritemaps
+		/sounds
+		/videos
+		/levels
+	/libs
+		/atomic
+		[Things like jquery and other js libs]
+	/js
+		main.js
+		[All of your own JS code goes in here]
+	index.html [Could be called something else. The page for the game.]
+
+The library does not care about the location of anything else. Feel free to put CSS or other pages for your site wherever you like. The important thing is the location of the assets, libs and js folders relative to the game HTML file.
+
+At minimum the index.html should be
+
+	<!DOCTYPE html>
+	<script src="libs/atomic/Atomic.js"></script>
+
+You could add a <div id="stage"></div> if you wanted to control the container in which we will place the canvas element.
+
+When the Atomic.js script loads it will first load all of its dependencies (which will be none in the minified version) and then load js/main.js - the entry point for your game.
+
+A minimal main.js would look like
+
+	Atomic.init();
+
+Which would simply create a default 640 by 480 pixel canvas element and start the engine ticking - though we haven't yet told the engine what to do.
+
+Input (User)
+-----
+For keyboard and mouse input you will use the Atomic.Input object and the Atomic.Key utility constants.
+
+Only the left mouse button is handled; the others are ignored.
+
+Atomic.Input provides the following properties
+
+	lastKey:string - The name of the last key that was pressed
+	mouseUp:boolean - If the mouse button is NOT being held
+	mouseDown:boolean - If the mouse button is being held
+	mousePressed:boolean - If the mouse was pressed this frame
+	mouseReleased:boolean - If the mouse was released this frame
+	mouseWheel:boolean - If the mouse wheel was scrolled this frame
+	mouseWheelDelta:boolean - How far the wheel was scrolled this frame
+	mouseX:int - X coordinate of current mouse position
+	mouseY:int - Y coordinate of current mouse position
+
+If the mouse leaves the game area mouseX and mouseY will report the last known position.
+
+Atomic.Input also provides these methods
+
+	check(name:string):boolean - If the named input is held
+	clear() - Clears information about which keys/buttons are currently held
+	define(name:string, key1:string, ..., keyn:string) - Assigns the given name to the set of keys
+	keys(name:string):string[] - Returns the names of the keys assigned to the name
+	pressed(name:string):boolean - If the named input was pressed this frame
+	released(name:string):boolean - If the named input was released this frame
+
+By default, input names are mapped to the key of the same name. Key names are defined in the Atomic.Key object.
+
+	Atomic.Input.define("Jump", "UP_ARROW", "W");
+	if(Atomic.Input.check("LEFT_ARROW"))
+	{
+		// Do something if left arrow held
+	}
+	else if(Atomic.Input.pressed("Jump"))
+	{
+		// Do a jump if up arrow or W were pressed
+	}
+
+The special input name "ANY" can be used to detect key states without caring which one.
+
+
+Asset Loader (Design)
+------------
+I would like to be able to do something like:
+
+	Atomic.Assets.load({
+		spritemaps: {sprites: "images/sprites.png", tiles: "images/tiles.png"},
+		sounds: {dead: "sounds/dead.wav", jump: "sounds/jump.wav"},
+		levels: {1: "levels/level1.tmx", 2: "levels/level2.tmx"}
+	});
+
+And then to access them as Atomic.Assets.spritemaps.sprites and have it be a Spritemap object (for e.g.)
+
+Or even, going with a convention...
+
+	Atomic.Assets.load({
+		spritemaps: ["sprites", "tiles"},
+		sounds: ["dead", "jump"],
+		levels: [1, 2]
+	});
+
+(How would you deal with sprite size for a spritemap? Option on loading? Set it on the spritemap after loading? Hmm.)
+
+and you would know the path and file extensions to look for (even having audio fallback types work automatically depending on supported formats...)
+
+But most importantly this should be asynchronous, I should be able to determine loading progress and it should trigger Atomic.ready() when everything is loaded.
+
+Resources about asset management and preloading:
+	http://smus.com/game-asset-loader/
+	http://www.html5rocks.com/en/tutorials/games/assetmanager/
+	http://www.html5rocks.com/en/tutorials/casestudies/subsonic/
+	http://thinkpixellab.com/pxloader/
+
