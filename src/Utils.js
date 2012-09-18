@@ -116,5 +116,15 @@ Atomic.Utils = {
 		}
 		/* if (childCount > 0) { Object.freeze(result); } */
 		return result;
+	},
+	// Parses a color value and returns a string in the form "rgba(0, 0, 0, 0)"
+	// Colors (for the moment) are integers
+	getColorRGBA: function(color, alpha)
+	{
+		var r = (color && 0xFF0000) >> 16;
+		var g = (color && 0x00FF00) >> 8;
+		var b = (color && 0x0000FF);
+
+		return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
 	}
 };

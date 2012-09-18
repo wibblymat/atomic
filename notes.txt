@@ -76,6 +76,8 @@ Or, remember that we can do 2D in webgl and use the graphics card.
 How do I make it so that I have the code that loads up all of the modules when I'm developing, but not have it in there when using a minified/concatenated version? Do I need r.js after all?
 When loading an Ogmo level (or potentially other XML files), rather than writing the XML file to the filesystem cache, write the converted JSON instead to save doing again.
 Better terminology for Graphics. An image file that contains one single image is a Sprite (to distinguish from DOM Image - FP uses Image). A Spritemap contains animations. A Tileset contains many tiles in a grid. A GraphicList contains zero or more Graphics.
+A constructor that returns a new object rather than manipulating "this" cannot be subclassed in the same way. Calling the super constructor with the subclasses context wont have the right effect
+
 Error handling EVERYWHERE.
 
 Other frameworks to investigate:

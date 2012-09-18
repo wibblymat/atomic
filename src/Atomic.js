@@ -8,16 +8,17 @@ window.performance.now = window.performance.now || window.performance.webkitNow;
 var Atomic = (function()
 {
 	var scriptQueue = []; // Array of JS scripts to be loaded (in order)
-	var frameStart = window.performance.now();
+	var frameStart = 0;
+	var world = null;
+	var nextworld = null;
 	var atomic = {
 		VERSION: "0.1",
 		debug: false,
 		stage: null,
-		width: 640,
-		height: 480,
 		scale: 1,
-		world: null,
+		camera: {x: 0, y: 0},
 		elapsed: 0,
+		backgroundColor: "#000000",
 		ready: function(callback)
 		{
 			// Register a callback for when the ready event fires
@@ -49,29 +50,91 @@ var Atomic = (function()
 			atomic.scale  = options.scale     || atomic.scale;
 			var container = options.container || document.body;
 			container.appendChild(atomic.stage);
-			container.style.backgroundColor = "#000000"; // TODO: Background color should be configurable
 			// TODO: maybe abstract away atomic.stage elsewhere so that it could have multiple layers, be 2d or webgl or not even canvas or whatever
+			atomic.stage.style.backgroundColor = atomic.backgroundColor;
 			atomic.stage.width = atomic.width * atomic.scale;
 			atomic.stage.height = atomic.height * atomic.scale;
 			atomic.stage.focus();
 			// TODO: Make the image smoothing option cross-browser, similar to rAF
 			atomic.stage.getContext("2d").scale(atomic.scale, atomic.scale);
 			atomic.stage.getContext("2d").webkitImageSmoothingEnabled = false;
+			frameStart = window.performance.now();
 			mainLoop();
 		}
 	};
 
+	var width = 640;
+	var height = 480;
+	var halfWidth = Math.round(width / 2);
+	var halfHeight = Math.round(height / 2);
+
+	Object.defineProperties( atomic,
+	{
+		"width": {
+			get: function()
+			{
+				return width;
+			},
+			set: function(value)
+			{
+				width = value;
+				halfWidth = Math.round(width / 2);
+			}
+		},
+		"height": {
+			get: function()
+			{
+				return height;
+			},
+			set: function(value)
+			{
+				height = value;
+				halfHeight = Math.round(height / 2);
+			}
+		},
+		"halfWidth": {
+			get: function()
+			{
+				return halfWidth;
+			}
+		},
+		"halfHeight": {
+			get: function()
+			{
+				return halfHeight;
+			}
+		},
+		"world": {
+			get: function()
+			{
+				return world;
+			},
+			set: function(value)
+			{
+				if(world === value) return;
+				nextworld = value;
+			}
+		}
+	});
+
 	scriptQueue = [
 		"http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js",
+		"libs/atomic/Utils.js", // This has to come before anything that uses inheritance
 		"libs/atomic/Animation.js",
 		"libs/atomic/AssetManager.js",
 		"libs/atomic/Audio.js",
 		"libs/atomic/Entity.js",
+		"libs/atomic/Graphic.js",
+		"libs/atomic/Graphics/Animation.js",
+		"libs/atomic/Graphics/Graphiclist.js",
+		"libs/atomic/Graphics/Image.js",
+		"libs/atomic/Graphics/Spritemap.js",
+		"libs/atomic/Graphics/Tilemap.js",
 		"libs/atomic/Input.js",
 		"libs/atomic/Key.js",
 		"libs/atomic/Sound.js",
+		"libs/atomic/Space.js",
 		"libs/atomic/SpriteSheet.js",
-		"libs/atomic/Utils.js",
 		"libs/atomic/World.js",
 		"js/main.js"
 	];
@@ -95,11 +158,21 @@ var Atomic = (function()
 	atomic.stage.tabIndex = 1; // Make the canvas focusable
 
 	var frameRequest;
-	var mainLoop = function(timestamp)
+	var mainLoop = function()
 	{
+		var timestamp = window.performance.now();
 		frameRequest = window.requestAnimationFrame(mainLoop);
-		atomic.elapsed = timestamp - frameStart;
+		atomic.elapsed = (timestamp - frameStart) / 1000; // Work in seconds rather than milliseconds
 		frameStart = timestamp;
+
+		if(nextworld)
+		{
+			if(world) world.end();
+			world = nextworld;
+			nextworld = null;
+			atomic.camera = world.camera;
+			world.begin();
+		}
 
 		$(atomic).trigger("startFrame");
 		if(atomic.world)

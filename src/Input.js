@@ -102,6 +102,15 @@ Atomic.Input = (function()
 		var posx = 0;
 		var posy = 0;
 
+		$("#debug").text(
+			"event.pageX: " + event.pageX + "\n" +
+			"event.pageY: " + event.pageY + "\n" +
+			"event.clientX: " + event.clientX + "\n" +
+			"event.clientX: " + event.clientX + "\n" +
+			"document.body.scrollLeft: " + document.body.scrollLeft + "\n" +
+			"document.body.scrollTop: " + document.body.scrollTop + "\n"
+		);
+
 		if(!event) event = window.event;
 		if(event.pageX || event.pageY)
 		{
@@ -177,20 +186,22 @@ Atomic.Input = (function()
 	stage.blur(function(event)
 	{
 		inputState = {"ANY":{pressed: false, released: false, held: false}};
+		input.mouseUp = true;
+		input.mouseDown = false;
 	});
 
 	// To be called once a frame so we know when to clear per-frame states
 	$(Atomic).bind("endFrame", function()
 	{
-		var input, state;
-		this.mousePressed = false;
-		this.mouseReleased = false;
-		this.mouseWheel = false;
-		this.mouseWheelDelta = 0;
+		var state, name;
+		input.mousePressed = false;
+		input.mouseReleased = false;
+		input.mouseWheel = false;
+		input.mouseWheelDelta = 0;
 
-		for(input in inputState)
+		for(name in inputState)
 		{
-			state = inputState[input];
+			state = inputState[name];
 			state.pressed = false;
 			state.released = false;
 		}

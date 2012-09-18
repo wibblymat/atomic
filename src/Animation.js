@@ -20,31 +20,27 @@ Atomic.Animation = function(spritesheet, options)
 		cache[i] = canvas;
 	}
 
-	var animation = {
-		width: frameWidth,
-		height: spritesheet.height,
-		start: function()
-		{
-			startTime = window.performance.now();
-		},
-		stop: function()
-		{
-			startTime = null;
-		},
-		finished: function()
-		{
-			if(loop) return false;
-			if(startTime === null) return true;
-
-			return window.performance.now() > startTime + (frames / framesPerSecond) * 1000;
-		},
-		getFrame: function()
-		{
-			if(animation.finished() || startTime === null) return cache[0];
-			var current = Math.floor((window.performance.now() - startTime) * framesPerSecond / 1000) % frames;
-			return cache[current];
-		}
+	this.width = frameWidth;
+	this.height = spritesheet.height;
+	this.start = function()
+	{
+		startTime = window.performance.now();
 	};
+	this.stop = function()
+	{
+		startTime = null;
+	};
+	this.finished = function()
+	{
+		if(loop) return false;
+		if(startTime === null) return true;
 
-	return animation;
+		return window.performance.now() > startTime + (frames / framesPerSecond) * 1000;
+	};
+	this.getFrame = function()
+	{
+		if(this.finished() || startTime === null) return cache[0];
+		var current = Math.floor((window.performance.now() - startTime) * framesPerSecond / 1000) % frames;
+		return cache[current];
+	};
 };
