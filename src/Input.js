@@ -102,15 +102,6 @@ Atomic.Input = (function()
 		var posx = 0;
 		var posy = 0;
 
-		$("#debug").text(
-			"event.pageX: " + event.pageX + "\n" +
-			"event.pageY: " + event.pageY + "\n" +
-			"event.clientX: " + event.clientX + "\n" +
-			"event.clientX: " + event.clientX + "\n" +
-			"document.body.scrollLeft: " + document.body.scrollLeft + "\n" +
-			"document.body.scrollTop: " + document.body.scrollTop + "\n"
-		);
-
 		if(!event) event = window.event;
 		if(event.pageX || event.pageY)
 		{

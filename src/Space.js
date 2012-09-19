@@ -1,4 +1,5 @@
 // Objects to represent multi-dimensional data structures, like a 2d grid
+// Maybe use typed arrays for storage - http://www.khronos.org/registry/typedarray/specs/latest/
 "use strict";
 var Atomic = window.Atomic || {};
 Atomic.Space = function()

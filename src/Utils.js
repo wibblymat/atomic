@@ -9,6 +9,10 @@ Atomic.Utils = {
 		subclass.base = base;
 		subclass.prototype.constructor = subclass;
 	},
+	rand: function(max)
+	{
+		return Math.floor(Math.random() * max);
+	},
 	removeElement: function(item, array, all)
 	{
 		// The all parameter determines whether we should stop after finding one occurrence or keep going
@@ -18,12 +22,13 @@ Atomic.Utils = {
 		{
 			if(item === array[i])
 			{
-				delete array[i];
+				array.splice(i, 1);
 				if(!all)
 				{
 					return;
 				}
 			}
+			i--;
 		}
 	},
 	// JXON implementation, based on https://developer.mozilla.org/en-US/docs/JXON
@@ -102,19 +107,21 @@ Atomic.Utils = {
 				}
 			}
 		}
+
 		if(text)
 		{
 			text = this.parseText(text);
-			if(childCount > 0)
-			{
-				result.keyValue = text;
-			}
-			else
-			{
-				result = text;
-			}
+			// Possibly a bit too clever for my own good
+			Object.defineProperty(result, "toString", {
+				value: function(){ return text ;}
+			});
 		}
-		/* if (childCount > 0) { Object.freeze(result); } */
+
+		if(childCount > 0)
+		{
+			Object.freeze(result);
+		}
+
 		return result;
 	},
 	// Parses a color value and returns a string in the form "rgba(0, 0, 0, 0)"

@@ -160,8 +160,9 @@ var Atomic = (function()
 	var frameRequest;
 	var mainLoop = function()
 	{
-		var timestamp = window.performance.now();
 		frameRequest = window.requestAnimationFrame(mainLoop);
+
+		var timestamp = window.performance.now();
 		atomic.elapsed = (timestamp - frameStart) / 1000; // Work in seconds rather than milliseconds
 		frameStart = timestamp;
 

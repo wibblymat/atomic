@@ -30,7 +30,7 @@ Atomic.Graphics.Tilemap.prototype = {
 	{
 		columnSep = columnSep || ",";
 		rowSep = rowSep || "\n";
-		var row = str.split(rowSep),
+		var row = String(str).split(rowSep),
 			rows = row.length,
 			col, cols, x, y;
 		for(y = 0; y < rows; y ++)

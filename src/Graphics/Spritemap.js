@@ -38,9 +38,8 @@ Atomic.Graphics.Spritemap.prototype.updateBuffer = function(clearBefore)
 	clearBefore = clearBefore || false;
 	// get position of the current frame
 	this._.rectangle.x = this._.rectangle.width * this._.frame;
-	this._.rectangle.y = Math.round(this._.rectangle.x / this._.width) * this._.rectangle.height;
+	this._.rectangle.y = Math.floor(this._.rectangle.x / this._.width) * this._.rectangle.height;
 	this._.rectangle.x %= this._.width;
-	if(this._.flipped) this._.rectangle.x = (this._.width - this._.rectangle.width) - this._.rectangle.x;
 
 	// update the buffer
 	Atomic.Graphics.Image.prototype.updateBuffer.call(this, clearBefore);
@@ -62,19 +61,27 @@ Atomic.Graphics.Spritemap.prototype.update = function()
 					if (this._.animation.loop)
 					{
 						this._.index = 0;
-						if(this.callback !== null) this.callback();
+						if(this.callback) this.callback();
 					}
 					else
 					{
 						this._.index = this._.animation.frameCount - 1;
 						this.complete = true;
-						if(this.callback !== null) this.callback();
+						if(this.callback) this.callback();
 						break;
 					}
 				}
 			}
-			if (this._.animation) this._.frame = Math.round(this._.animation.frames[this._.index]);
-			this.updateBuffer();
+			var lastFrame = this._.frame;
+			if (this._.animation)
+			{
+				this._.frame = Math.round(this._.animation.frames[this._.index]);
+				if(lastFrame !== this._.frame)
+				{
+					this.updateBuffer();
+				}
+			}
+
 		}
 	}
 };
@@ -131,7 +138,7 @@ Atomic.Graphics.Spritemap.prototype.setFrame = function(column, row)
 
 Atomic.Graphics.Spritemap.prototype.randFrame = function()
 {
-	this.frame = FP.rand(this._.frameCount);
+	this.frame = Atomic.Utils.rand(this._.frameCount);
 };
 
 Atomic.Graphics.Spritemap.prototype.setAnimationFrame = function(name, index)

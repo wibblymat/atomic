@@ -37,16 +37,6 @@ Atomic.World.prototype = {
 		return this.add(entity);
 	},
 	begin: function(){},
-	end: function(){},
-	update: function()
-	{
-		for(var i in this.entities)
-		{
-			var entity = this.entities[i];
-			if(entity.active) entity.update();
-			if(entity.graphic && entity.graphic.active) entity.graphic.update();
-		}
-	},
 	draw: function()
 	{
 		var entity, i;
@@ -66,9 +56,31 @@ Atomic.World.prototype = {
 			}
 		}
 	},
+	end: function(){},
+	getEntitiesByClass: function(constructor)
+	{
+		var result = [];
+		for(var i = 0; i < this.entities.length; i++)
+		{
+			if(this.entities[i] instanceof constructor)
+			{
+				result.push(this.entities[i]);
+			}
+		}
+		return result;
+	},
 	remove: function(entity)
 	{
 		Atomic.Utils.removeElement(entity, this.entities);
+	},
+	update: function()
+	{
+		for(var i in this.entities)
+		{
+			var entity = this.entities[i];
+			if(entity.active) entity.update();
+			if(entity.graphic && entity.graphic.active) entity.graphic.update();
+		}
 	}
 };
 
