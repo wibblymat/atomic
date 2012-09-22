@@ -1,13 +1,11 @@
-/*global head: true */
+/*global define */
 "use strict";
-
-window.URL = window.URL || window.webkitURL;
-window.performance = window.performance || window.msperformance;
-window.performance.now = window.performance.now || window.performance.webkitNow;
-
-var Atomic = (function()
+define(function(require)
 {
-	var scriptQueue = []; // Array of JS scripts to be loaded (in order)
+	window.URL = window.URL || window.webkitURL;
+	window.performance = window.performance || window.msperformance;
+	window.performance.now = window.performance.now || window.performance.webkitNow;
+
 	var frameStart = 0;
 	var world = null;
 	var nextworld = null;
@@ -16,48 +14,37 @@ var Atomic = (function()
 		debug: false,
 		stage: null,
 		scale: 1,
+		smooth: true,
 		camera: {x: 0, y: 0},
 		elapsed: 0,
 		backgroundColor: "#000000",
-		ready: function(callback)
-		{
-			// Register a callback for when the ready event fires
-			// The ready event happens when all required JS has been loaded
-			// TODO: What to do if the ready event already fired?
-			// * Call the callback directly (taking flow away from the caller)
-			// * Call the callback via setTimeout or similar
-			// * Return a false value here or similar
-			// * Ignore it
-			// * Log it
-			$(document).bind("Atomic.ready", callback);
-		},
-		require: function() // Load JS files
-		{
-			// If head.js is already loaded then go ahead and load. Otherwise queue for later.
-			if(head !== undefined)
-			{
-				head.js.apply(head, arguments);
-			}
-			else
-			{
-				scriptQueue = scriptQueue.concat(arguments);
-			}
-		},
 		init: function(options)
 		{
 			atomic.width  = options.width     || atomic.width;
 			atomic.height = options.height    || atomic.height;
 			atomic.scale  = options.scale     || atomic.scale;
+			atomic.smooth  = options.smooth     || atomic.smooth;
 			var container = options.container || document.body;
 			container.appendChild(atomic.stage);
 			// TODO: maybe abstract away atomic.stage elsewhere so that it could have multiple layers, be 2d or webgl or not even canvas or whatever
 			atomic.stage.style.backgroundColor = atomic.backgroundColor;
 			atomic.stage.width = atomic.width * atomic.scale;
 			atomic.stage.height = atomic.height * atomic.scale;
+			atomic.stage.style.outline = 0;
+			atomic.stage.style.position = "absolute";
+			atomic.stage.style.left = ((container.offsetWidth / 2) - atomic.halfWidth) + "px";
+			atomic.stage.style.outline = 0;
 			atomic.stage.focus();
+
+			var resize = function()
+			{
+				atomic.stage.style.left = ((container.offsetWidth / 2) - atomic.halfWidth) + "px";
+			};
+			$(window).resize(resize);
+
 			// TODO: Make the image smoothing option cross-browser, similar to rAF
 			atomic.stage.getContext("2d").scale(atomic.scale, atomic.scale);
-			atomic.stage.getContext("2d").webkitImageSmoothingEnabled = false;
+			atomic.stage.getContext("2d").webkitImageSmoothingEnabled = atomic.smooth; // TODO: webkit prefix!
 			frameStart = window.performance.now();
 			mainLoop();
 		}
@@ -117,41 +104,6 @@ var Atomic = (function()
 		}
 	});
 
-	scriptQueue = [
-		"http://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js",
-		"libs/atomic/Utils.js", // This has to come before anything that uses inheritance
-		"libs/atomic/Animation.js",
-		"libs/atomic/AssetManager.js",
-		"libs/atomic/Audio.js",
-		"libs/atomic/Entity.js",
-		"libs/atomic/Graphic.js",
-		"libs/atomic/Graphics/Animation.js",
-		"libs/atomic/Graphics/Graphiclist.js",
-		"libs/atomic/Graphics/Image.js",
-		"libs/atomic/Graphics/Spritemap.js",
-		"libs/atomic/Graphics/Tilemap.js",
-		"libs/atomic/Input.js",
-		"libs/atomic/Key.js",
-		"libs/atomic/Sound.js",
-		"libs/atomic/Space.js",
-		"libs/atomic/SpriteSheet.js",
-		"libs/atomic/World.js",
-		"js/main.js"
-	];
-
-	var headScript = document.createElement("script");
-	headScript.src = "libs/atomic/head.load.min.js";
-	headScript.onload = function()
-	{
-		head.js.apply(head, scriptQueue);
-		head.ready(function()
-		{
-			$(document).trigger("Atomic.ready");
-		});
-		scriptQueue = [];
-	};
-	document.head.appendChild(headScript);
-
 	// We don't size the canvas or add it to the document until init()
 	// However, we still create the element now so that it is available in sub-modules as they load
 	atomic.stage = document.createElement("canvas");
@@ -178,15 +130,19 @@ var Atomic = (function()
 		$(atomic).trigger("startFrame");
 		if(atomic.world)
 		{
-			$(atomic.world).trigger("frame");
+			atomic.world.update();
+			atomic.world.draw();
 		}
 		$(atomic).trigger("endFrame");
+
+		timestamp = window.performance.now();
+		atomic.duration = (timestamp - frameStart) / 1000; // Measure the
 	};
 
 	// TODO: focus and blur events on the stage should unpause/pause the game
 
 	return atomic;
-}());
+});
 
 
 // Before we finish we need to set up our environment the way we like it

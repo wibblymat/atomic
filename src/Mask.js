@@ -1,50 +1,55 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-
-Atomic.Mask = function(x, y, graphic, mask)
+define(function()
 {
-	this.parent = null;
-	this.list = null;
+	function Mask(x, y, graphic, mask)
+	{
+		this.parent = null;
+		this.list = null;
+		this.check = this.check || {};
+		this.check.Mask = collideMask;
+		this.check.MaskList = collideMasklist;
+	}
 
-	// // Mask information.
-	// /** @private */ private var _class:Class;
-	// /** @private */ protected var _check:Dictionary = new Dictionary;
+	// Ok, so the original in FP uses the actual class name of the object that is doing the colliding.
+	// That obviously isn't going to work in JS, so we'll provide a name to use.
+	// We just have to be aware that this means creating a custom Mask class involved overriding the MaskType too.
+	// This whole business is pretty horrible
+	Mask.prototype.MaskType = "Mask";
 
-	_class = Class(getDefinitionByName(getQualifiedClassName(this)));
-	_check[Mask] = collideMask;
-	_check[Masklist] = collideMasklist;
-};
+	Mask.prototype.collide = function(mask)
+	{
+		if(this.check[mask.MaskType] !== null) return this.check[mask.MaskType].call(this, mask);
+		if(mask.check[this.MaskType] !== null) return mask.check[this.MaskType].call(mask, this);
+		return false;
+	};
 
-Atomic.Mask.prototype.collide = function(mask)
-{
-	if(_check[mask._class] != null) return _check[mask._class](mask);
-	if(mask._check[_class] != null) return mask._check[_class](this);
-	return false;
-};
+	Mask.prototype.assignTo = function(parent)
+	{
+		this.parent = parent;
+		if(!this.list && parent) this.update();
+	};
 
-Atomic.Mask.prototype.collideMask = function(other)
-{
-	return parent.x - parent.originX + parent.width > other.parent.x - other.parent.originX &&
-		parent.y - parent.originY + parent.height > other.parent.y - other.parent.originY &&
-		parent.x - parent.originX < other.parent.x - other.parent.originX + other.parent.width &&
-		parent.y - parent.originY < other.parent.y - other.parent.originY + other.parent.height;
-};
+	Mask.prototype.update = function()
+	{
+	};
 
-Atomic.Mask.prototype.collideMasklist = function(other)
-{
-	return other.collide(this);
-};
+	Mask.prototype.renderDebug = function(g)
+	{
+	};
 
-Atomic.Mask.prototype.assignTo = function(parent)
-{
-	this.parent = parent;
-	if(!this.list && parent) this.update();
-};
+	var collideMask = function(other)
+	{
+		return this.parent.x - this.parent.originX + this.parent.width > other.parent.x - other.parent.originX &&
+			parent.y - this.parent.originY + this.parent.height > other.parent.y - other.parent.originY &&
+			parent.x - this.parent.originX < other.parent.x - other.parent.originX + other.parent.width &&
+			parent.y - this.parent.originY < other.parent.y - other.parent.originY + other.parent.height;
+	};
 
-Atomic.Mask.prototype.update = function()
-{
-};
+	var collideMasklist = function(other)
+	{
+		return other.collide(this);
+	};
 
-Atomic.Mask.prototype.renderDebug = function(g)
-{
-};
+	return Mask;
+});

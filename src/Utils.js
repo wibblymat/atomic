@@ -1,6 +1,67 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-Atomic.Utils = {
+define({
+	DEG: -180 / Math.PI,
+	RAD: Math.PI / -180,
+	angle: function(x1, y1, x2, y2)
+	{
+		var a = Math.atan2(y2 - y1, x2 - x1) * this.DEG;
+		return a < 0 ? a + 360 : a;
+	},
+	angleXY: function(object, angle, length, x, y)
+	{
+		if(length === undefined) length = 1;
+		angle *= this.RAD;
+		object.x = Math.cos(angle) * length + (x || 0);
+		object.y = Math.sin(angle) * length + (y || 0);
+	},
+	clamp: function(value, min, max)
+	{
+		if(max > min)
+		{
+			if(value < min) return min;
+			else if(value > max) return max;
+			else return value;
+		}
+		else
+		{
+			// Min/max swapped
+			if(value < max) return max;
+			else if(value > min) return min;
+			else return value;
+		}
+	},
+	distance: function(x1, y1, x2, y2)
+	{
+		// Cast all to Number
+		x1 = +x1;
+		y1 = +y1;
+		x2 = +x2;
+		y2 = +y2;
+
+		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+	},
+	distanceRects: function(x1, y1, w1, h1, x2, y2, w2, h2)
+	{
+		if(x1 < x2 + w2 && x2 < x1 + w1)
+		{
+			if(y1 < y2 + h2 && y2 < y1 + h1) return 0;
+			if(y1 > y2) return y1 - (y2 + h2);
+			return y2 - (y1 + h1);
+		}
+		if(y1 < y2 + h2 && y2 < y1 + h1)
+		{
+			if(x1 > x2) return x1 - (x2 + w2);
+			return x2 - (x1 + w1);
+		}
+		if(x1 > x2)
+		{
+			if(y1 > y2) return this.distance(x1, y1, (x2 + w2), (y2 + h2));
+			return this.distance(x1, y1 + h1, x2 + w2, y2);
+		}
+		if(y1 > y2) return this.distance(x1 + w1, y1, x2, y2 + h2);
+		return this.distance(x1 + w1, y1 + h1, x2, y2);
+	},
 	extend: function(base, subclass)
 	{
 		function F(){}
@@ -11,7 +72,12 @@ Atomic.Utils = {
 	},
 	rand: function(max)
 	{
-		return Math.floor(Math.random() * max);
+		return Math.floor(this.random() * max);
+	},
+	random: function()
+	{
+		//TODO: FP has this method because it allows you to set the seed and therefore "replay" random events. I haven't done that yet
+		return Math.random();
 	},
 	removeElement: function(item, array, all)
 	{
@@ -30,6 +96,21 @@ Atomic.Utils = {
 			}
 			i--;
 		}
+	},
+	scale: function(value, min, max, min2, max2)
+	{
+		return min2 + ((value - min) / (max - min)) * (max2 - min2);
+	},
+	scaleClamp: function(value, min, max, min2, max2)
+	{
+		value = min2 + ((value - min) / (max - min)) * (max2 - min2);
+		if(max2 > min2)
+		{
+			value = value < max2 ? value : max2;
+			return value > min2 ? value : min2;
+		}
+		value = value < min2 ? value : min2;
+		return value > max2 ? value : max2;
 	},
 	// JXON implementation, based on https://developer.mozilla.org/en-US/docs/JXON
 	parseText: function(sValue)
@@ -128,10 +209,12 @@ Atomic.Utils = {
 	// Colors (for the moment) are integers
 	getColorRGBA: function(color, alpha)
 	{
+		/*jshint bitwise: false */
 		var r = (color && 0xFF0000) >> 16;
 		var g = (color && 0x00FF00) >> 8;
 		var b = (color && 0x0000FF);
+		/*jshint bitwise: true */
 
 		return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
 	}
-};
+});

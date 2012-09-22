@@ -1,43 +1,43 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-Atomic.Graphics = Atomic.Graphics || {};
-
-Atomic.Graphics.Graphiclist = function()
+define(["Utils", "Graphic"], function(Utils, Graphic)
 {
-	this._ = this._ || {};
-	this._.graphics = [];
-	this._.temp = [];
-	this._.count = 0;
-	this._.camera = {x: 0, y: 0};
-
-	Atomic.Graphic.call(this);
-
-	for(var i = 0; i < arguments.length; i++)
+	function Graphiclist()
 	{
-		this.add(arguments[i]);
-	}
-};
-Atomic.Utils.extend(Atomic.Graphic, Atomic.Graphics.Graphiclist);
+		this._graphics = [];
+		this._temp = [];
+		this._count = 0;
+		this._camera = {x: 0, y: 0};
 
-Atomic.Graphics.Graphiclist.prototype = {
-	update: function()
-	{
-		for(var index in this._.graphics)
+		Graphic.call(this);
+
+		for(var i = 0; i < arguments.length; i++)
 		{
-			var g = this._.graphics[index];
+			this.add(arguments[i]);
+		}
+	}
+
+	Utils.extend(Graphic, Graphiclist);
+
+	Graphiclist.prototype.update = function()
+	{
+		for(var index in this._graphics)
+		{
+			var g = this._graphics[index];
 			if(g.active) g.update();
 		}
-	},
-	render: function(target, point, camera)
+	};
+
+	Graphiclist.prototype.render = function(target, point, camera)
 	{
 		point.x += this.x;
 		point.y += this.y;
 		camera.x *= this.scrollX;
 		camera.y *= this.scrollY;
 		var temp = {x: 0, y: 0};
-		for(var index in this._.graphics)
+		for(var index in this._graphics)
 		{
-			var g = this._.graphics[index];
+			var g = this._graphics[index];
 			if(g.visible)
 			{
 				if(g.relative)
@@ -46,69 +46,75 @@ Atomic.Graphics.Graphiclist.prototype = {
 					temp.y = point.y;
 				}
 				else temp.x = temp.y = 0;
-				this._.camera.x = camera.x;
-				this._.camera.y = camera.y;
-				g.render(target, temp, this._.camera);
+				this._camera.x = camera.x;
+				this._camera.y = camera.y;
+				g.render(target, temp, this._camera);
 			}
 		}
-	},
-	add: function(graphic)
+	};
+
+	Graphiclist.prototype.add = function(graphic)
 	{
-		this._.graphics[this._.count ++] = graphic;
+		this._graphics[this._count ++] = graphic;
 		if(!this.active) this.active = graphic.active;
 		return graphic;
-	},
-	remove: function(graphic)
+	};
+
+	Graphiclist.prototype.remove = function(graphic)
 	{
-		if(this._.graphics.indexOf(graphic) < 0) return graphic;
-		this._.temp.length = 0;
-		for(var index in this._.graphics)
+		if(this._graphics.indexOf(graphic) < 0) return graphic;
+		this._temp.length = 0;
+		for(var index in this._graphics)
 		{
-			var g = this._.graphics[index];
-			if(g === graphic) this._.count --;
-			else this._.temp[this._.temp.length] = g;
+			var g = this._graphics[index];
+			if(g === graphic) this._count --;
+			else this._temp[this._temp.length] = g;
 		}
-		var temp = this._.graphics;
-		this._.graphics = this._.temp;
-		this._.temp = temp;
+		var temp = this._graphics;
+		this._graphics = this._temp;
+		this._temp = temp;
 		this.updateCheck();
 		return graphic;
-	},
-	removeAt: function(index)
+	};
+
+	Graphiclist.prototype.removeAt = function(index)
 	{
 		index = index || 0;
-		if(!this._.graphics.length) return;
-		index %= this._.graphics.length;
-		this.remove(this._.graphics[index % this._.graphics.length]);
+		if(!this._graphics.length) return;
+		index %= this._graphics.length;
+		this.remove(this._graphics[index % this._graphics.length]);
 		this.updateCheck();
-	},
-	removeAll: function()
+	};
+
+	Graphiclist.prototype.removeAll = function()
 	{
-		this._.graphics.length = this._.temp.length = this._.count = 0;
+		this._graphics.length = this._temp.length = this._count = 0;
 		this.active = false;
-	},
-	updateCheck: function()
+	};
+
+	Graphiclist.prototype.updateCheck = function()
 	{
 		this.active = false;
-		for(var index in this._.graphics)
+		for(var index in this._graphics)
 		{
-			var g = this._.graphics[index];
+			var g = this._graphics[index];
 			if(g.active)
 			{
 				this.active = true;
 				return;
 			}
 		}
-	}
-};
+	};
 
+	Object.defineProperties( Graphiclist.prototype,
+	{
+		"children": {
+			get: function(){ return this._graphics; }
+		},
+		"count": {
+			get: function() { return this._count; }
+		}
+	});
 
-Object.defineProperties( Atomic.Graphics.Graphiclist.prototype,
-{
-	"children": {
-		get: function(){ return this._.graphics; }
-	},
-	"count": {
-		get: function() { return this._.count; }
-	}
+	return Graphiclist;
 });

@@ -1,6 +1,6 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-Atomic.Key = {
+define({
 	// This list based on:
 	// https://developer.mozilla.org/en-US/docs/DOM/KeyboardEvent#Virtual_key_codes
 	// TODO: This does not fully map all of the keys in the article linked above.
@@ -64,4 +64,4 @@ Atomic.Key = {
 	89: "Y",
 	90: "Z",
 	93: "MENU"
-};
+});

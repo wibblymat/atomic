@@ -1,14 +1,18 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-
-Atomic.Sound = function(buffer)
+define(["Audio"], function(Audio)
 {
-	this.source = Atomic.Audio.context.createBufferSource();
-	this.source.buffer = buffer;
-	this.source.connect(Atomic.Audio.context.destination);
-};
+	function Sound(buffer)
+	{
+		this.source = Audio.context.createBufferSource();
+		this.source.buffer = buffer;
+		this.source.connect(Audio.context.destination);
+	}
 
-Atomic.Sound.prototype.play = function()
-{
-	this.source.noteOn(0);
-};
+	Sound.prototype.play = function()
+	{
+		this.source.noteOn(0);
+	};
+
+	return Sound;
+});

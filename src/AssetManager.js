@@ -1,7 +1,6 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-
-Atomic.AssetManager = (function()
+define(["Audio"], function(Audio)
 {
 	// TODO: We want this to work for images, sounds, JSON files (maps, etc.) and maybe others
 	// TODO: Look in our filesystem store before going to the network
@@ -43,7 +42,7 @@ Atomic.AssetManager = (function()
 		request.responseType = 'arraybuffer';
 		request.onload = function()
 		{
-			Atomic.Audio.createSound(this.response, function(sound)
+			Audio.createSound(this.response, function(sound)
 			{
 				assetManager.assets[item.id] = sound;
 				onload(callback);
@@ -103,4 +102,4 @@ Atomic.AssetManager = (function()
 	};
 
 	return assetManager;
-}());
+});

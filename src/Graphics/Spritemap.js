@@ -1,194 +1,195 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-Atomic.Graphics = Atomic.Graphics || {};
-
-Atomic.Graphics.Spritemap = function(source, frameWidth, frameHeight, callback)
+define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], function(Utils, Graphic, Image, Atomic, Animation)
 {
-	frameWidth = frameWidth || 0;
-	frameHeight = frameHeight || 0;
-
-	this.complete = true;
-	this.callback = callback || null;
-	this.rate = 1;
-
-	this._ = this._ || {};
-	this._.rectangle = {x: 0, y: 0, width: frameWidth, height: frameHeight};
-	if(!frameWidth) this._.rectangle.width = source.width;
-	if(!frameHeight) this._.rectangle.height = source.height;
-	this._.width = source.width;
-	this._.height = source.height;
-	this._.columns = this._.width / this._.rectangle.width;
-	this._.rows = this._.height / this._.rectangle.height;
-	this._.frameCount = this._.columns * this._.rows;
-	this._.animations = {};
-	this._.animation = null;
-	this._.index = null;
-	this._.frame = null;
-	this._.timer = 0;
-
-	Atomic.Graphics.Image.call(this, source, this._.rectangle);
-	this.callback = callback;
-	this.updateBuffer();
-	this.active = true;
-};
-Atomic.Utils.extend(Atomic.Graphics.Image, Atomic.Graphics.Spritemap);
-
-Atomic.Graphics.Spritemap.prototype.updateBuffer = function(clearBefore)
-{
-	clearBefore = clearBefore || false;
-	// get position of the current frame
-	this._.rectangle.x = this._.rectangle.width * this._.frame;
-	this._.rectangle.y = Math.floor(this._.rectangle.x / this._.width) * this._.rectangle.height;
-	this._.rectangle.x %= this._.width;
-
-	// update the buffer
-	Atomic.Graphics.Image.prototype.updateBuffer.call(this, clearBefore);
-};
-
-Atomic.Graphics.Spritemap.prototype.update = function()
-{
-	if (this._.animation && !this.complete)
+	function Spritemap(source, frameWidth, frameHeight, callback)
 	{
-		this._.timer += this._.animation.frameRate * Atomic.elapsed * this.rate;
-		if (this._.timer >= 1)
-		{
-			while (this._.timer >= 1)
-			{
-				this._.timer --;
-				this._.index ++;
-				if (this._.index === this._.animation.frameCount)
-				{
-					if (this._.animation.loop)
-					{
-						this._.index = 0;
-						if(this.callback) this.callback();
-					}
-					else
-					{
-						this._.index = this._.animation.frameCount - 1;
-						this.complete = true;
-						if(this.callback) this.callback();
-						break;
-					}
-				}
-			}
-			var lastFrame = this._.frame;
-			if (this._.animation)
-			{
-				this._.frame = Math.round(this._.animation.frames[this._.index]);
-				if(lastFrame !== this._.frame)
-				{
-					this.updateBuffer();
-				}
-			}
+		frameWidth = frameWidth || 0;
+		frameHeight = frameHeight || 0;
 
-		}
-	}
-};
-
-Atomic.Graphics.Spritemap.prototype.add = function(name, frames, frameRate, loop)
-{
-	frameRate = frameRate || 0;
-	if(loop === undefined) loop = true;
-	if (this._.animations[name]) throw new Error("Cannot have multiple animations with the same name");
-	(this._.animations[name] = new Atomic.Graphics.Animation(name, frames, frameRate, loop)).parent = this;
-	return this._.animations[name];
-};
-
-Atomic.Graphics.Spritemap.prototype.play = function(name, reset, frame)
-{
-	name = name || "";
-	reset = !!reset;
-	frame = frame || 0;
-	if(!reset && this._.animation && this._.animation.name === name) return this._.animation;
-	this._.animation = this._.animations[name];
-	if (!this._.animation)
-	{
-		this._.frame = this._.index = 0;
 		this.complete = true;
+		this.callback = callback || null;
+		this.rate = 1;
+
+		this._rectangle = {x: 0, y: 0, width: frameWidth, height: frameHeight};
+		if(!frameWidth) this._rectangle.width = source.width;
+		if(!frameHeight) this._rectangle.height = source.height;
+		this._width = source.width;
+		this._height = source.height;
+		this._columns = this._width / this._rectangle.width;
+		this._rows = this._height / this._rectangle.height;
+		this._frameCount = this._columns * this._rows;
+		this._animations = {};
+		this._animation = null;
+		this._index = null;
+		this._frame = null;
+		this._timer = 0;
+
+		Image.call(this, source, this._rectangle);
+		this.callback = callback;
 		this.updateBuffer();
-		return null;
+		this.active = true;
 	}
-	this._.index = 0;
-	this._.timer = 0;
-	this._.frame = Math.round(this._.animation.frames[frame % this._.animation.frameCount]);
-	this.complete = false;
-	this.updateBuffer();
-	return this._.animation;
-};
+	Utils.extend(Image, Spritemap);
 
-Atomic.Graphics.Spritemap.prototype.getFrame = function(column, row)
-{
-	column = column || 0;
-	row    = row    || 0;
-	return (row % this._.rows) * this._.columns + (column % this._.columns);
-};
+	Spritemap.prototype.updateBuffer = function(clearBefore)
+	{
+		clearBefore = clearBefore || false;
+		// get position of the current frame
+		this._rectangle.x = this._rectangle.width * this._frame;
+		this._rectangle.y = Math.floor(this._rectangle.x / this._width) * this._rectangle.height;
+		this._rectangle.x %= this._width;
 
-Atomic.Graphics.Spritemap.prototype.setFrame = function(column, row)
-{
-	column = column || 0;
-	row    = row    || 0;
-	this._.animation = null;
-	var frame = (row % this._.rows) * this._.columns + (column % this._.columns);
-	if(this._.frame === frame) return;
-	this._.frame = frame;
-	this._.timer = 0;
-	this.updateBuffer();
-};
+		// update the buffer
+		Image.prototype.updateBuffer.call(this, clearBefore);
+	};
 
-Atomic.Graphics.Spritemap.prototype.randFrame = function()
-{
-	this.frame = Atomic.Utils.rand(this._.frameCount);
-};
-
-Atomic.Graphics.Spritemap.prototype.setAnimationFrame = function(name, index)
-{
-	var frames = this._.animations[name].frames;
-	index %= frames.length;
-	if(index < 0) index += frames.length;
-	this.frame = frames[index];
-};
-
-
-Object.defineProperties( Atomic.Graphics.Spritemap.prototype,
-{
-	"frame": {
-		get: function(){ return this._.frame; },
-		set: function(value)
+	Spritemap.prototype.update = function()
+	{
+		if (this._animation && !this.complete)
 		{
-			this._.animation = null;
-			value %= this._.frameCount;
-			if(value < 0) value = this._.frameCount + value;
-			if(this._.frame === value) return;
-			this._.frame = value;
-			this._.timer = 0;
-			this.updateBuffer();
+			this._timer += this._animation.frameRate * Atomic.elapsed * this.rate;
+			if (this._timer >= 1)
+			{
+				while (this._timer >= 1)
+				{
+					this._timer --;
+					this._index ++;
+					if (this._index === this._animation.frameCount)
+					{
+						if (this._animation.loop)
+						{
+							this._index = 0;
+							if(this.callback) this.callback();
+						}
+						else
+						{
+							this._index = this._animation.frameCount - 1;
+							this.complete = true;
+							if(this.callback) this.callback();
+							break;
+						}
+					}
+				}
+				var lastFrame = this._frame;
+				if (this._animation)
+				{
+					this._frame = Math.round(this._animation.frames[this._index]);
+					if(lastFrame !== this._frame)
+					{
+						this.updateBuffer();
+					}
+				}
+
+			}
 		}
-	},
-	"index": {
-		get: function() { return this._.animation ? this._.index : 0; },
-		set: function(value)
+	};
+
+	Spritemap.prototype.add = function(name, frames, frameRate, loop)
+	{
+		frameRate = frameRate || 0;
+		if(loop === undefined) loop = true;
+		if (this._animations[name]) throw new Error("Cannot have multiple animations with the same name");
+		(this._animations[name] = new Animation(name, frames, frameRate, loop)).parent = this;
+		return this._animations[name];
+	};
+
+	Spritemap.prototype.play = function(name, reset, frame)
+	{
+		name = name || "";
+		reset = !!reset;
+		frame = frame || 0;
+		if(!reset && this._animation && this._animation.name === name) return this._animation;
+		this._animation = this._animations[name];
+		if (!this._animation)
 		{
-			if(!this._.animation) return;
-			value %= this._.animation.frameCount;
-			if(this._.index === value) return;
-			this._.index = value;
-			this._.frame = Math.round(this._.animation.frames[this._.index]);
-			this._.timer = 0;
+			this._frame = this._index = 0;
+			this.complete = true;
 			this.updateBuffer();
+			return null;
 		}
-	},
-	"frameCount": {
-		get: function() { return this._.frameCount; }
-	},
-	"columns": {
-		get: function() { return this._.columns; }
-	},
-	"rows": {
-		get: function() { return this._.rows; }
-	},
-	"currentAnimation": {
-		get: function(){ return this._.animation ? this._.animation._name : ""; }
-	}
+		this._index = 0;
+		this._timer = 0;
+		this._frame = Math.round(this._animation.frames[frame % this._animation.frameCount]);
+		this.complete = false;
+		this.updateBuffer();
+		return this._animation;
+	};
+
+	Spritemap.prototype.getFrame = function(column, row)
+	{
+		column = column || 0;
+		row    = row    || 0;
+		return (row % this._rows) * this._columns + (column % this._columns);
+	};
+
+	Spritemap.prototype.setFrame = function(column, row)
+	{
+		column = column || 0;
+		row    = row    || 0;
+		this._animation = null;
+		var frame = (row % this._rows) * this._columns + (column % this._columns);
+		if(this._frame === frame) return;
+		this._frame = frame;
+		this._timer = 0;
+		this.updateBuffer();
+	};
+
+	Spritemap.prototype.randFrame = function()
+	{
+		this.frame = Utils.rand(this._frameCount);
+	};
+
+	Spritemap.prototype.setAnimationFrame = function(name, index)
+	{
+		var frames = this._animations[name].frames;
+		index %= frames.length;
+		if(index < 0) index += frames.length;
+		this.frame = frames[index];
+	};
+
+
+	Object.defineProperties( Spritemap.prototype,
+	{
+		"frame": {
+			get: function(){ return this._frame; },
+			set: function(value)
+			{
+				this._animation = null;
+				value %= this._frameCount;
+				if(value < 0) value = this._frameCount + value;
+				if(this._frame === value) return;
+				this._frame = value;
+				this._timer = 0;
+				this.updateBuffer();
+			}
+		},
+		"index": {
+			get: function() { return this._animation ? this._index : 0; },
+			set: function(value)
+			{
+				if(!this._animation) return;
+				value %= this._animation.frameCount;
+				if(this._index === value) return;
+				this._index = value;
+				this._frame = Math.round(this._animation.frames[this._index]);
+				this._timer = 0;
+				this.updateBuffer();
+			}
+		},
+		"frameCount": {
+			get: function() { return this._frameCount; }
+		},
+		"columns": {
+			get: function() { return this._columns; }
+		},
+		"rows": {
+			get: function() { return this._rows; }
+		},
+		"currentAnimation": {
+			get: function(){ return this._animation ? this._animation.name : ""; }
+		}
+	});
+
+	return Spritemap;
 });
-

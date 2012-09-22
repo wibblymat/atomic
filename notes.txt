@@ -6,9 +6,8 @@ Features, vaguely prioritised: (Priority is for the basics of each feature, not 
 * Input
 * Asset loading
 * Sprite/tile sheets including animations
-* Tile maps - ultimately would be nice to support several formats, but starting with Ogmo level format
+* Tiled maps/levels - ultimately would be nice to support several formats, but starting with Ogmo level format
 * Camera - Pan, rotate, zoom, filters...? Ooh, *multiple* cameras? Allows things like a magnifying glass
-* Multi-layer level maps - TMX format, probably
 * Collision - pixel and grid based hit detection
 * Backdrops, possibly repeated tiles.
 * Sound/Music - Panning, volume, stop, start, positioning, "sound sprites" - Web Audio API if possible, might need the SoundManager flash stuff though :(
@@ -58,7 +57,7 @@ Things to think about:
 ----------------------
 Use custom events for things, so use a "frame" event so that things that happen each frame can happen, etc. Events might include switching the active world, losing focus, destroying an entity, etc.
 While I am currently basing lots of API on Flashpunk, lets not forget about other game engines. Check out the docs and techniques in other game frameworks, particularly HTML5 ones (some listed below).
-head.js might not be neccessary if I use require.js, but if it is I may want to consider rewriting the functionality of head.js that I actually want, as part of the asset manager.
+head.js might not be neccessary if I use requireJS, but if it is I may want to consider rewriting the functionality of head.js that I actually want, as part of the asset manager.
 Possible also that if I were to stick to HTML5 audio that soundmanager is total overkill. Maybe. The flash stuff is nice though.
 Don't worry too much about supporting things that aren't the latest version of chrome to start off with. Get it working, then refactor when testing in other browsers.
 iPhone/Android support would be nice I guess, but it is NOT a target of this project. Chrome web store is, though.
@@ -72,6 +71,8 @@ For performance, pre-draw tiled backgrounds to a larger canvas when the level st
 Or, remember that we can do 2D in webgl and use the graphics card.
 When loading an Ogmo level (or potentially other XML files), rather than writing the XML file to the filesystem cache, write the converted JSON instead to save doing again.
 A constructor that returns a new object rather than manipulating "this" cannot be subclassed in the same way. Calling the super constructor with the subclasses context wont have the right effect.
+I've used some css colour attributes in my code, and FP uses integer colour values... Be consistent, not sure which to choose though.
+I wonder if we can make the tween class work independently of Atomic? Just the time elapsed and event trigger...
 
 Error handling EVERYWHERE.
 
@@ -99,7 +100,7 @@ Early versions will only support the latest stable release of Chrome.
 
 The library is released under a 2-clause BSD license (The "Simplified BSD License").
 
-The library will be changed to use require.js, but will not force the end user to use it. For details of how, see https://github.com/requirejs/example-libglobal
+The library will be changed to use requireJS, but will not force the end user to use it. For details of how, see https://github.com/requirejs/example-libglobal
 
 Documentation
 =============

@@ -1,43 +1,67 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-
-// The FP version of this is at https://github.com/Draknek/FlashPunk/blob/master/net/flashpunk/World.as
-// However, not sure we'll be following all that closely
-
-//TODO: Events when added to or removed from the stage
-Atomic.World = function()
+define(["Entity", "Atomic", "Utils", "Input"], function(Entity, Atomic, Utils, Input)
 {
-	this.camera = {x: 0, y: 0}; // In the original this was a Point. Overkill here though probably.
-	this.visible = true;
-	this.entities = [];
+	// The FP version of this is at https://github.com/Draknek/FlashPunk/blob/master/net/flashpunk/World.as
+	// However, not sure we'll be following all that closely
 
-	$(this).bind("frame", function(){
-		this.update();
-		this.draw();
-	});
-};
+	//TODO: Events when added to or removed from the stage
+	function World()
+	{
+		this.camera = {x: 0, y: 0}; // In the original this was a Point. Overkill here though probably.
+		this.visible = true;
+		this.entities = [];
+	}
 
-Atomic.World.prototype = {
-	add: function(entity)
+	World.prototype.add = function(entity)
 	{
 		this.entities.push(entity);
-		if(!entity._.world) entity._.world = this; // Icky, playing with "private" members from out here
+		if(!entity._world) entity._world = this; // Icky, playing with "private" members from out here
 		entity.added();
 		return entity;
-	},
-	addGraphic: function(graphic, layer, x, y)
+	};
+
+	World.prototype.addGraphic = function(graphic, layer, x, y)
 	{
 		layer = layer || 0;
 		x     = x     || 0;
 		y     = y     || 0;
 
-		var entity = new Atomic.Entity(x, y, graphic);
+		var entity = new Entity(x, y, graphic);
 		entity.layer = layer;
 		entity.active = false;
 		return this.add(entity);
-	},
-	begin: function(){},
-	draw: function()
+	};
+
+	World.prototype.addMask = function(mask, type, x, y)
+	{
+		var entity = new Entity(x || 0, y || 0, null, mask);
+		if(type) entity.type = type;
+		entity.active = entity.visible = false;
+		return this.add(entity);
+	};
+
+	World.prototype.begin = function(){};
+
+	World.prototype.create = function(Constructor, addToWorld)
+	{
+		if(addToWorld === undefined) addToWorld = true;
+		//TODO: entity recycling
+		// var entity = _recycled[classType];
+		// if(entity)
+		// {
+		// 	_recycled[classType] = entity._recycleNext;
+		// 	entity._recycleNext = null;
+		// }
+		// else
+		// {
+			var entity = new Constructor();
+		// }
+		if(addToWorld) return this.add(entity);
+		return entity;
+	};
+
+	World.prototype.draw = function()
 	{
 		var entity, i;
 
@@ -55,9 +79,11 @@ Atomic.World.prototype = {
 				entity.render();
 			}
 		}
-	},
-	end: function(){},
-	getEntitiesByClass: function(constructor)
+	};
+
+	World.prototype.end = function(){};
+
+	World.prototype.getEntitiesByClass = function(constructor)
 	{
 		var result = [];
 		for(var i = 0; i < this.entities.length; i++)
@@ -68,12 +94,27 @@ Atomic.World.prototype = {
 			}
 		}
 		return result;
-	},
-	remove: function(entity)
+	};
+
+	World.prototype.getEntitiesByType = function(type)
 	{
-		Atomic.Utils.removeElement(entity, this.entities);
-	},
-	update: function()
+		var result = [];
+		for(var i = 0; i < this.entities.length; i++)
+		{
+			if(this.entities[i].type === type)
+			{
+				result.push(this.entities[i]);
+			}
+		}
+		return result;
+	};
+
+	World.prototype.remove = function(entity)
+	{
+		Utils.removeElement(entity, this.entities);
+	};
+
+	World.prototype.update = function()
 	{
 		for(var i in this.entities)
 		{
@@ -81,21 +122,23 @@ Atomic.World.prototype = {
 			if(entity.active) entity.update();
 			if(entity.graphic && entity.graphic.active) entity.graphic.update();
 		}
-	}
-};
+	};
 
-Object.defineProperties( Atomic.World.prototype,
-{
-	"mouseX": {
-		get: function()
-		{
-			return Atomic.Input.mouseX + this.camera.x;
+	Object.defineProperties( World.prototype,
+	{
+		"mouseX": {
+			get: function()
+			{
+				return Input.mouseX + this.camera.x;
+			}
+		},
+		"mouseY": {
+			get: function()
+			{
+				return Input.mouseY + this.camera.y;
+			}
 		}
-	},
-	"mouseY": {
-		get: function()
-		{
-			return Atomic.Input.mouseY + this.camera.y;
-		}
-	}
+	});
+
+	return World;
 });

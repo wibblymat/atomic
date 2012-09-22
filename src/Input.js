@@ -1,6 +1,6 @@
+/*global define */
 "use strict";
-var Atomic = window.Atomic || {};
-Atomic.Input = (function()
+define(["Atomic"], function(Atomic)
 {
 	var stage, inputState = {"ANY":{pressed: false, released: false, held: false}};
 	// For the sake of simplicity, we only ever care about the left mouse button
@@ -114,9 +114,11 @@ Atomic.Input = (function()
 			posy = event.clientY + document.body.scrollTop + document.documentElement.scrollTop;
 		}
 
-		// TODO: Work out the wierdness with relatively positioned elements
-		posx -= stage.get(0).parentElement.offsetLeft;
-		posy -= stage.get(0).parentElement.offsetTop;
+		// We have the position relative to the page
+		// Now to get it relative to our element
+		var rect = stage.get(0).getBoundingClientRect();
+		posx -= (rect.left + window.scrollX);
+		posy -= (rect.top + window.scrollY);
 
 		// This should deal with the situation where the mouse was clicked while off the stage, then dragged over the stage while the button is still down.
 		input.mouseDown = event.which === 1;
@@ -200,4 +202,4 @@ Atomic.Input = (function()
 
 
 	return input;
-}());
+});
