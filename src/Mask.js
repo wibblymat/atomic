@@ -41,9 +41,9 @@ define(function()
 	var collideMask = function(other)
 	{
 		return this.parent.x - this.parent.originX + this.parent.width > other.parent.x - other.parent.originX &&
-			parent.y - this.parent.originY + this.parent.height > other.parent.y - other.parent.originY &&
-			parent.x - this.parent.originX < other.parent.x - other.parent.originX + other.parent.width &&
-			parent.y - this.parent.originY < other.parent.y - other.parent.originY + other.parent.height;
+			this.parent.y - this.parent.originY + this.parent.height > other.parent.y - other.parent.originY &&
+			this.parent.x - this.parent.originX < other.parent.x - other.parent.originX + other.parent.width &&
+			this.parent.y - this.parent.originY < other.parent.y - other.parent.originY + other.parent.height;
 	};
 
 	var collideMasklist = function(other)

@@ -22,6 +22,8 @@ Features, vaguely prioritised: (Priority is for the basics of each feature, not 
 * Simple AI features? Path finding, sure.
 * Plugin/module system. Requires a community to be worth it so don't even bother till we have something to go public with.
 * Internationalisation (string localisation at least)
+* Replays/demos/recordings - will need the deterministic PRNG
+* Particles and emitters
 
 Scaffolding:
 * Menus
@@ -73,6 +75,9 @@ When loading an Ogmo level (or potentially other XML files), rather than writing
 A constructor that returns a new object rather than manipulating "this" cannot be subclassed in the same way. Calling the super constructor with the subclasses context wont have the right effect.
 I've used some css colour attributes in my code, and FP uses integer colour values... Be consistent, not sure which to choose though.
 I wonder if we can make the tween class work independently of Atomic? Just the time elapsed and event trigger...
+Collisions... use quad trees. Detect the "passed right through" type of collision (items never overlap). Maybe make it so that a graphic can have a hit mask (like a TileMap) which can be checked if the entity doesn't have one.
+Bit of a verbosity issue. Atomic.Assetmanager.assets["image/player"] is tooo long!
+
 
 Error handling EVERYWHERE.
 

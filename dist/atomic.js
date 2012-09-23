@@ -726,9 +726,9 @@ define('Mask',[],function()
 	var collideMask = function(other)
 	{
 		return this.parent.x - this.parent.originX + this.parent.width > other.parent.x - other.parent.originX &&
-			parent.y - this.parent.originY + this.parent.height > other.parent.y - other.parent.originY &&
-			parent.x - this.parent.originX < other.parent.x - other.parent.originX + other.parent.width &&
-			parent.y - this.parent.originY < other.parent.y - other.parent.originY + other.parent.height;
+			this.parent.y - this.parent.originY + this.parent.height > other.parent.y - other.parent.originY &&
+			this.parent.x - this.parent.originX < other.parent.x - other.parent.originX + other.parent.width &&
+			this.parent.y - this.parent.originY < other.parent.y - other.parent.originY + other.parent.height;
 	};
 
 	var collideMasklist = function(other)
@@ -856,8 +856,9 @@ define('Entity',["Atomic", "Mask"], function(Atomic, Mask)
 			if(!this.mask) return true;
 			var _x = this.x, _y = this.y;
 			this.x = x; this.y = y;
-
-			if(this.mask.collide(new Mask(pX, pY, 1, 1)))
+			var testMask = new Mask();
+			testMask.assignTo({x: pX, y: pY, width: 1, height:1, originX: 0, originY: 0});
+			if(this.mask.collide(testMask))
 			{
 					this.x = _x;
 					this.y = _y;
@@ -1266,15 +1267,19 @@ define('Input',["Atomic"], function(Atomic)
 		var name = inputMap[key] || key || null;
 
 		input.lastKey = key;
-		inputState["ANY"].pressed = true;
-		inputState["ANY"].held = true;
 
 		if(name !== null)
 		{
 			inputState[name] = inputState[name] || {released: false};
-			inputState[name].pressed = true;
+			// Determine wether or not this is a keyboard repeat or a genuine
+			// user keypress. If the key was already marked as held (meaning
+			// no previous keyup) then it wasn't really pressed this frame.
+			inputState[name].pressed = !inputState[name].held;
 			inputState[name].held = true;
 		}
+
+		inputState["ANY"].pressed = true;
+		inputState["ANY"].held = true;
 	});
 
 	stage.keyup(function(event)
@@ -1522,10 +1527,14 @@ define('Tween',["Atomic"], function(Atomic)
 			{
 				if(options.hasOwnProperty(i))
 				{
-					values[i] = target[i];
 					if(specials.indexOf(i) < 0)
 					{
+						values[i] = target[i];
 						target[i] = options[i];
+					}
+					else
+					{
+						values[i] = options[i];
 					}
 				}
 			}
@@ -1615,6 +1624,11 @@ define('Utils',{
 		angle *= this.RAD;
 		object.x = Math.cos(angle) * length + (x || 0);
 		object.y = Math.sin(angle) * length + (y || 0);
+	},
+	choose: function()
+	{
+		var c = (arguments.length === 1 && (arguments[0].splice)) ? arguments[0] : arguments;
+		return c[this.rand(c.length)];
 	},
 	clamp: function(value, min, max)
 	{
@@ -1811,9 +1825,9 @@ define('Utils',{
 	getColorRGBA: function(color, alpha)
 	{
 		/*jshint bitwise: false */
-		var r = (color && 0xFF0000) >> 16;
-		var g = (color && 0x00FF00) >> 8;
-		var b = (color && 0x0000FF);
+		var r = (color & 0xFF0000) >> 16;
+		var g = (color & 0x00FF00) >> 8;
+		var b = (color & 0x0000FF);
 		/*jshint bitwise: true */
 
 		return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
@@ -1864,6 +1878,140 @@ define('World',["Entity", "Atomic", "Utils", "Input"], function(Entity, Atomic, 
 	};
 
 	World.prototype.begin = function(){};
+
+	World.prototype.collideLine = function(type, fromX, fromY, toX, toY, precision, p)
+	{
+		if(precision === undefined) precision = 1;
+		p = p || null;
+
+		// If the distance is less than precision, do the short sweep.
+		if(precision < 1) precision = 1;
+		if(Utils.distance(fromX, fromY, toX, toY) < precision)
+		{
+			if(p)
+			{
+				if(fromX === toX && fromY === toY)
+				{
+					p.x = toX; p.y = toY;
+					return this.collidePoint(type, toX, toY);
+				}
+				return this.collideLine(type, fromX, fromY, toX, toY, 1, p);
+			}
+			else return this.collidePoint(type, fromX, toY);
+		}
+
+		// Get information about the line we're about to raycast.
+		var xDelta = Math.abs(toX - fromX),
+			yDelta = Math.abs(toY - fromY),
+			xSign = toX > fromX ? precision : -precision,
+			ySign = toY > fromY ? precision : -precision,
+			x = fromX, y = fromY, e;
+
+		// Do a raycast from the start to the end point.
+		if(xDelta > yDelta)
+		{
+			ySign *= yDelta / xDelta;
+			if(xSign > 0)
+			{
+				while(x < toX)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+			else
+			{
+				while(x > toX)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+		}
+		else
+		{
+			xSign *= xDelta / yDelta;
+			if(ySign > 0)
+			{
+				while(y < toY)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+			else
+			{
+				while(y > toY)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+		}
+
+		// Check the last position.
+		if(precision > 1)
+		{
+			if(!p) return this.collidePoint(type, toX, toY);
+			if(this.collidePoint(type, toX, toY)) return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+		}
+
+		// No collision, return the end point.
+		if(p)
+		{
+			p.x = toX;
+			p.y = toY;
+		}
+		return null;
+	};
+
+	World.prototype.collidePoint = function(type, pX, pY)
+	{
+		var entities = this.getEntitiesByType(type);
+
+		for(var i in entities)
+		{
+			var entity = entities[i];
+			if (entity.collidePoint(entity.x, entity.y, pX, pY)) return entity;
+		}
+		return null;
+	};
 
 	World.prototype.create = function(Constructor, addToWorld)
 	{
@@ -2252,6 +2400,7 @@ define('Graphics/Image',["Utils", "Graphic"], function(Utils, Graphic)
 		context.rotate(this.angle * Utils.RAD);
 		context.translate(-this.originX * scaleX, -this.originY * scaleY);
 		context.scale(scaleX, scaleY);
+		context.globalAlpha = this.alpha;
 		context.drawImage(this._buffer, 0, 0);
 		context.restore();
 	};
@@ -2281,8 +2430,13 @@ define('Graphics/Image',["Utils", "Graphic"], function(Utils, Graphic)
 				context.translate(this._buffer.width, 0);
 				context.scale(-1, 1);
 			}
-			context.globalAlpha = this.alpha;
 			context.drawImage(this._source, this._clipRect.x, this._clipRect.y, this._clipRect.width, this._clipRect.height, 0, 0, this._buffer.width, this._buffer.height);
+			if(this._tintMode === Image.TINTING_MULTIPLY && this._color !== 0xFFFFFF)
+			{
+				context.globalCompositeOperation = "source-atop";
+				context.fillStyle = Utils.getColorRGBA(this._color, this._tinting);
+				context.fillRect(0, 0, this._buffer.width, this._buffer.height);
+			}
 			context.restore();
 			if(this._tint)
 			{
@@ -2301,13 +2455,14 @@ define('Graphics/Image',["Utils", "Graphic"], function(Utils, Graphic)
 
 	Image.prototype.updateColorTransform = function()
 	{
+		// TODO: Tidy up. This is now only for TINTING_COLORIZE
 		/*jshint bitwise: false */
 		if(this._tinting === 0)
 		{
 			this._tint = null;
 			return this.updateBuffer();
 		}
-		if((this._tintMode === Image.TINTING_MULTIPLY) && (this._color === 0xFFFFFF))
+		if(this._tintMode === Image.TINTING_MULTIPLY)
 		{
 			this._tint = null;
 			return this.updateBuffer();
@@ -2370,7 +2525,7 @@ define('Graphics/Image',["Utils", "Graphic"], function(Utils, Graphic)
 				value = value < 0 ? 0 : (value > 1 ? 1 : value);
 				if(this._alpha === value) return;
 				this._alpha = value;
-				this.updateBuffer();
+				//this.updateBuffer();
 			}
 		},
 		"color": {

@@ -43,6 +43,140 @@ define(["Entity", "Atomic", "Utils", "Input"], function(Entity, Atomic, Utils, I
 
 	World.prototype.begin = function(){};
 
+	World.prototype.collideLine = function(type, fromX, fromY, toX, toY, precision, p)
+	{
+		if(precision === undefined) precision = 1;
+		p = p || null;
+
+		// If the distance is less than precision, do the short sweep.
+		if(precision < 1) precision = 1;
+		if(Utils.distance(fromX, fromY, toX, toY) < precision)
+		{
+			if(p)
+			{
+				if(fromX === toX && fromY === toY)
+				{
+					p.x = toX; p.y = toY;
+					return this.collidePoint(type, toX, toY);
+				}
+				return this.collideLine(type, fromX, fromY, toX, toY, 1, p);
+			}
+			else return this.collidePoint(type, fromX, toY);
+		}
+
+		// Get information about the line we're about to raycast.
+		var xDelta = Math.abs(toX - fromX),
+			yDelta = Math.abs(toY - fromY),
+			xSign = toX > fromX ? precision : -precision,
+			ySign = toY > fromY ? precision : -precision,
+			x = fromX, y = fromY, e;
+
+		// Do a raycast from the start to the end point.
+		if(xDelta > yDelta)
+		{
+			ySign *= yDelta / xDelta;
+			if(xSign > 0)
+			{
+				while(x < toX)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+			else
+			{
+				while(x > toX)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+		}
+		else
+		{
+			xSign *= xDelta / yDelta;
+			if(ySign > 0)
+			{
+				while(y < toY)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+			else
+			{
+				while(y > toY)
+				{
+					if((e = this.collidePoint(type, x, y)))
+					{
+						if(!p) return e;
+						if(precision < 2)
+						{
+							p.x = x - xSign; p.y = y - ySign;
+							return e;
+						}
+						return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+					}
+					x += xSign; y += ySign;
+				}
+			}
+		}
+
+		// Check the last position.
+		if(precision > 1)
+		{
+			if(!p) return this.collidePoint(type, toX, toY);
+			if(this.collidePoint(type, toX, toY)) return this.collideLine(type, x - xSign, y - ySign, toX, toY, 1, p);
+		}
+
+		// No collision, return the end point.
+		if(p)
+		{
+			p.x = toX;
+			p.y = toY;
+		}
+		return null;
+	};
+
+	World.prototype.collidePoint = function(type, pX, pY)
+	{
+		var entities = this.getEntitiesByType(type);
+
+		for(var i in entities)
+		{
+			var entity = entities[i];
+			if (entity.collidePoint(entity.x, entity.y, pX, pY)) return entity;
+		}
+		return null;
+	};
+
 	World.prototype.create = function(Constructor, addToWorld)
 	{
 		if(addToWorld === undefined) addToWorld = true;

@@ -69,10 +69,14 @@ define(["Atomic"], function(Atomic)
 			{
 				if(options.hasOwnProperty(i))
 				{
-					values[i] = target[i];
 					if(specials.indexOf(i) < 0)
 					{
+						values[i] = target[i];
 						target[i] = options[i];
+					}
+					else
+					{
+						values[i] = options[i];
 					}
 				}
 			}

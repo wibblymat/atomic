@@ -141,15 +141,19 @@ define(["Atomic"], function(Atomic)
 		var name = inputMap[key] || key || null;
 
 		input.lastKey = key;
-		inputState["ANY"].pressed = true;
-		inputState["ANY"].held = true;
 
 		if(name !== null)
 		{
 			inputState[name] = inputState[name] || {released: false};
-			inputState[name].pressed = true;
+			// Determine wether or not this is a keyboard repeat or a genuine
+			// user keypress. If the key was already marked as held (meaning
+			// no previous keyup) then it wasn't really pressed this frame.
+			inputState[name].pressed = !inputState[name].held;
 			inputState[name].held = true;
 		}
+
+		inputState["ANY"].pressed = true;
+		inputState["ANY"].held = true;
 	});
 
 	stage.keyup(function(event)

@@ -140,6 +140,7 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 		context.rotate(this.angle * Utils.RAD);
 		context.translate(-this.originX * scaleX, -this.originY * scaleY);
 		context.scale(scaleX, scaleY);
+		context.globalAlpha = this.alpha;
 		context.drawImage(this._buffer, 0, 0);
 		context.restore();
 	};
@@ -169,8 +170,13 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 				context.translate(this._buffer.width, 0);
 				context.scale(-1, 1);
 			}
-			context.globalAlpha = this.alpha;
 			context.drawImage(this._source, this._clipRect.x, this._clipRect.y, this._clipRect.width, this._clipRect.height, 0, 0, this._buffer.width, this._buffer.height);
+			if(this._tintMode === Image.TINTING_MULTIPLY && this._color !== 0xFFFFFF)
+			{
+				context.globalCompositeOperation = "source-atop";
+				context.fillStyle = Utils.getColorRGBA(this._color, this._tinting);
+				context.fillRect(0, 0, this._buffer.width, this._buffer.height);
+			}
 			context.restore();
 			if(this._tint)
 			{
@@ -189,13 +195,15 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 
 	Image.prototype.updateColorTransform = function()
 	{
+		// TODO: Tidy up. This is now only for TINTING_COLORIZE
+		// MIGHT be able to do the COLORIZE using globalCompositeMode = "darker"
 		/*jshint bitwise: false */
 		if(this._tinting === 0)
 		{
 			this._tint = null;
 			return this.updateBuffer();
 		}
-		if((this._tintMode === Image.TINTING_MULTIPLY) && (this._color === 0xFFFFFF))
+		if(this._tintMode === Image.TINTING_MULTIPLY)
 		{
 			this._tint = null;
 			return this.updateBuffer();
@@ -258,7 +266,7 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 				value = value < 0 ? 0 : (value > 1 ? 1 : value);
 				if(this._alpha === value) return;
 				this._alpha = value;
-				this.updateBuffer();
+				//this.updateBuffer();
 			}
 		},
 		"color": {

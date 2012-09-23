@@ -15,6 +15,11 @@ define({
 		object.x = Math.cos(angle) * length + (x || 0);
 		object.y = Math.sin(angle) * length + (y || 0);
 	},
+	choose: function()
+	{
+		var c = (arguments.length === 1 && (arguments[0].splice)) ? arguments[0] : arguments;
+		return c[this.rand(c.length)];
+	},
 	clamp: function(value, min, max)
 	{
 		if(max > min)
@@ -210,9 +215,9 @@ define({
 	getColorRGBA: function(color, alpha)
 	{
 		/*jshint bitwise: false */
-		var r = (color && 0xFF0000) >> 16;
-		var g = (color && 0x00FF00) >> 8;
-		var b = (color && 0x0000FF);
+		var r = (color & 0xFF0000) >> 16;
+		var g = (color & 0x00FF00) >> 8;
+		var b = (color & 0x0000FF);
 		/*jshint bitwise: true */
 
 		return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";

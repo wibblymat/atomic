@@ -115,8 +115,9 @@ define(["Atomic", "Mask"], function(Atomic, Mask)
 			if(!this.mask) return true;
 			var _x = this.x, _y = this.y;
 			this.x = x; this.y = y;
-
-			if(this.mask.collide(new Mask(pX, pY, 1, 1)))
+			var testMask = new Mask();
+			testMask.assignTo({x: pX, y: pY, width: 1, height:1, originX: 0, originY: 0});
+			if(this.mask.collide(testMask))
 			{
 					this.x = _x;
 					this.y = _y;
