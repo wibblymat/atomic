@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<head>
+	<title>Particles</title>
+	<script src="../lib/jquery-1.8.1.js"></script>
+	<script src="../dist/atomic.js"></script>
+	<script>
+		var particleSettings = {
+			rate: 0.1,
+			speed: 80,
+			size: 200,
+			duration: 5
+		};
+
+		window.onload = function()
+		{
+
+			Atomic.init({width: 800, height: 600});
+			var world = new Atomic.World();
+			Atomic.world = world;
+
+			var Smoke = function()
+			{
+				// TODO: Sort out layers so we can add new ones behind
+				var value = Atomic.Utils.rand(127) + 128;
+				var color = (value << 16) + (value << 8) + value;
+				var graphic = Atomic.Graphics.Image.createRect(Atomic.Utils.rand(particleSettings.size) + 5, Atomic.Utils.rand(particleSettings.size) + 5, color, Atomic.Utils.random() * 0.5 + 0.5);
+				var smoke = new Atomic.Entity(Atomic.halfWidth, Atomic.halfHeight, graphic);
+				graphic.centerOrigin();
+				smoke.centerOrigin();
+				graphic.scale = 0;
+				smoke.velocity = {x: 0, y:0};
+				smoke.alpha = graphic.alpha;
+				smoke.scale = 0.3;
+				smoke.spin = (Atomic.Utils.random() * 2) - 1;
+				Atomic.Utils.angleXY(smoke.velocity, Atomic.Utils.random() * 360, (Atomic.Utils.random() + 0.5) * particleSettings.duration * particleSettings.speed);
+				Atomic.Tween.to(smoke, particleSettings.duration, {scale: 1, alpha: 0, x: Atomic.halfWidth + smoke.velocity.x, y: Atomic.halfHeight + smoke.velocity.y});
+				smoke.update = function()
+				{
+					graphic.alpha = this.alpha;
+					graphic.scale = this.scale;
+					graphic.angle = this.alpha * 360 * this.spin;
+
+					if(this.alpha <= 0)
+					{
+						world.remove(this);
+					}
+				};
+				return smoke;
+			};
+
+
+			world.timer = 0;
+
+			world.update = function()
+			{
+				this.timer -= Math.min(Atomic.elapsed, 1); // If this tab isn't getting drawn, lets not save up hundreds of seconds worth of particles for one go!
+				while(this.timer < 0 && particleSettings.rate > 0)
+				{
+					this.timer += particleSettings.rate;
+					this.add(new Smoke());
+				}
+				Atomic.World.prototype.update.call(this);
+			}
+		}
+	</script>
+</head>
+<body>
+	<label for="rate">Spawn rate</label><input onchange="particleSettings.rate = 1 / parseInt(this.value);" id="rate" type="range" min="10" max="510" step="10" value="100"/><br />
+	<label for="speed">Speed</label><input onchange="particleSettings.speed = parseInt(this.value);" id="speed" type="range" min="10" max="500" step="10" value="80"/><br />
+	<label for="size">Size</label><input onchange="particleSettings.size = parseInt(this.value);" id="size" type="range" min="1" max="200" step="1" value="200"/><br />
+</body>
