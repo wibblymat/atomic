@@ -23,7 +23,7 @@ define(function(require)
 			atomic.width  = options.width     || atomic.width;
 			atomic.height = options.height    || atomic.height;
 			atomic.scale  = options.scale     || atomic.scale;
-			atomic.smooth  = options.smooth     || atomic.smooth;
+			atomic.smooth = options.smooth    || atomic.smooth;
 			var container = options.container || document.body;
 			container.appendChild(atomic.stage);
 			// TODO: maybe abstract away atomic.stage elsewhere so that it could have multiple layers, be 2d or webgl or not even canvas or whatever
@@ -32,15 +32,15 @@ define(function(require)
 			atomic.stage.height = atomic.height * atomic.scale;
 			atomic.stage.style.outline = 0;
 			atomic.stage.style.position = "absolute";
-			atomic.stage.style.left = ((container.offsetWidth / 2) - atomic.halfWidth) + "px";
 			atomic.stage.style.outline = 0;
 			atomic.stage.focus();
 
 			var resize = function()
 			{
-				atomic.stage.style.left = ((container.offsetWidth / 2) - atomic.halfWidth) + "px";
+				atomic.stage.style.left = ((container.offsetWidth / 2) - atomic.halfWidth * atomic.scale) + "px";
 			};
 			$(window).resize(resize);
+			resize();
 
 			// TODO: Make the image smoothing option cross-browser, similar to rAF
 			atomic.stage.getContext("2d").scale(atomic.scale, atomic.scale);
