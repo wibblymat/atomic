@@ -24,6 +24,7 @@ Features, vaguely prioritised: (Priority is for the basics of each feature, not 
 * Internationalisation (string localisation at least)
 * Replays/demos/recordings - will need the deterministic PRNG
 * Particles and emitters
+* World transitions - fades/wipes/dissolves
 
 Scaffolding:
 * Menus
@@ -59,8 +60,6 @@ Things to think about:
 ----------------------
 Use custom events for things, so use a "frame" event so that things that happen each frame can happen, etc. Events might include switching the active world, losing focus, destroying an entity, etc.
 While I am currently basing lots of API on Flashpunk, lets not forget about other game engines. Check out the docs and techniques in other game frameworks, particularly HTML5 ones (some listed below).
-head.js might not be neccessary if I use requireJS, but if it is I may want to consider rewriting the functionality of head.js that I actually want, as part of the asset manager.
-Possible also that if I were to stick to HTML5 audio that soundmanager is total overkill. Maybe. The flash stuff is nice though.
 Don't worry too much about supporting things that aren't the latest version of chrome to start off with. Get it working, then refactor when testing in other browsers.
 iPhone/Android support would be nice I guess, but it is NOT a target of this project. Chrome web store is, though.
 Have to make decisions about which parts of the engine are static/global and which things are classes or just local objects
@@ -77,7 +76,7 @@ I've used some css colour attributes in my code, and FP uses integer colour valu
 I wonder if we can make the tween class work independently of Atomic? Just the time elapsed and event trigger...
 Collisions... use quad trees. Detect the "passed right through" type of collision (items never overlap). Maybe make it so that a graphic can have a hit mask (like a TileMap) which can be checked if the entity doesn't have one.
 Bit of a verbosity issue. Atomic.Assetmanager.assets["image/player"] is tooo long!
-
+Thinking about it, I can probably live without jquery, which is 7 or 8 times as big as my whole library... We only use it for event handling.
 
 Error handling EVERYWHERE.
 
@@ -144,6 +143,7 @@ To keep the scope of the project small and keep the number of configurable optio
 
 Getting Started (User)
 ---------------
+(TODO: This is outdated now)
 Here is the project layout convention:
 /project
 	/assets
