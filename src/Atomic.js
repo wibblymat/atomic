@@ -3,8 +3,8 @@
 define(function(require)
 {
 	window.URL = window.URL || window.webkitURL;
-	window.performance = window.performance || window.msperformance;
-	window.performance.now = window.performance.now || window.performance.webkitNow;
+	window.performance = window.performance || window.msperformance || {};
+	window.performance.now = window.performance.now || window.performance.webkitNow || Date.now;
 
 	var frameStart = 0;
 	var world = null;

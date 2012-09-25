@@ -13,7 +13,7 @@ define(function()
 
 	// Ok, so the original in FP uses the actual class name of the object that is doing the colliding.
 	// That obviously isn't going to work in JS, so we'll provide a name to use.
-	// We just have to be aware that this means creating a custom Mask class involved overriding the MaskType too.
+	// We just have to be aware that this means creating a custom Mask class involves overriding the MaskType too.
 	// This whole business is pretty horrible
 	Mask.prototype.MaskType = "Mask";
 
