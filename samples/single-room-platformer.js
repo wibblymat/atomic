@@ -74,7 +74,10 @@ window.onload = function()
 			}
 			if(Atomic.Input.check("Up"))
 			{
-				velocity.y = -20;
+				if(this.collide("Solid", this.x, this.y + 1) !== null)
+				{
+					velocity.y = -20;
+				}
 			}
 			velocity.y += 1;
 
