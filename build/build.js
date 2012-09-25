@@ -10,6 +10,6 @@
 		"startFile": "wrap.start",
 		"endFile": "wrap.end"
 	},
-	"optimize": "none",
+	"optimize": "uglify",
 	"useStrict": true
 }
