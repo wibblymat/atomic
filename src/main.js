@@ -9,6 +9,7 @@ define(function(require)
 	var Input        = require("Input");
 	var Key          = require("Key");
 	var Mask         = require("Mask");
+	var Point        = require("Point");
 	var Sound        = require("Sound");
 	var Space        = require("Space");
 	var Tween        = require("Tween");
@@ -38,12 +39,12 @@ define(function(require)
 	atomic.Key          = Key;
 	atomic.Mask         = Mask;
 	atomic.Masks        = Masks;
+	atomic.Point        = Point;
 	atomic.Sound        = Sound;
 	atomic.Space        = Space;
 	atomic.Tween        = Tween;
 	atomic.Utils        = Utils;
 	atomic.World        = World;
-
 
 	return atomic;
 });
