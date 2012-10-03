@@ -1,6 +1,6 @@
 /*global define */
 "use strict";
-define(["Atomic", "Mask"], function(Atomic, Mask)
+define(["Atomic", "Mask", "Point"], function(Atomic, Mask, Point)
 {
 	// For the original FP code, see https://github.com/Draknek/FlashPunk/blob/master/net/flashpunk/Entity.as
 	//TODO: The FP version inherits from Tweener. Make sure we don't need to do that
@@ -43,7 +43,6 @@ define(["Atomic", "Mask"], function(Atomic, Mask)
 	//	distanceToRect
 	//	getClass
 	//	moveTo
-	//	moveTowards
 	//	setHitboxTo
 	//	setOrigin
 
@@ -266,6 +265,16 @@ define(["Atomic", "Mask"], function(Atomic, Mask)
 			this.x += x;
 			this.y += y;
 		}
+	};
+	Entity.prototype.moveTowards = function(x, y, amount, solidType, sweep)
+	{
+		var point = new Point(x - this.x, y - this.y);
+		if(point.length > amount)
+		{
+			point.normalize(amount);
+		}
+
+		this.moveBy(point.x, point.y, solidType, sweep);
 	};
 	Entity.prototype.moveCollideX = function(entity)
 	{
