@@ -23,7 +23,8 @@
 				// TODO: Sort out layers so we can add new ones behind
 				var value = Atomic.Utils.rand(127) + 128;
 				var color = (value << 16) + (value << 8) + value;
-				var graphic = Atomic.Graphics.Image.createRect(Atomic.Utils.rand(particleSettings.size) + 5, Atomic.Utils.rand(particleSettings.size) + 5, color, Atomic.Utils.random() * 0.5 + 0.5);
+				//var graphic = Atomic.Graphics.Image.createRect(Atomic.Utils.rand(particleSettings.size) + 5, Atomic.Utils.rand(particleSettings.size) + 5, color, Atomic.Utils.random() * 0.5 + 0.5);
+				var graphic = Atomic.Graphics.Image.createCircle(Atomic.Utils.rand(particleSettings.size) + 5, color, Atomic.Utils.random() * 0.5 + 0.5);
 				var smoke = new Atomic.Entity(Atomic.halfWidth, Atomic.halfHeight, graphic);
 				graphic.centerOrigin();
 				smoke.centerOrigin();
@@ -31,14 +32,14 @@
 				smoke.velocity = {x: 0, y:0};
 				smoke.alpha = graphic.alpha;
 				smoke.scale = 0.3;
-				smoke.spin = (Atomic.Utils.random() * 2) - 1;
+				//smoke.spin = (Atomic.Utils.random() * 2) - 1;
 				Atomic.Utils.angleXY(smoke.velocity, Atomic.Utils.random() * 360, (Atomic.Utils.random() + 0.5) * particleSettings.duration * particleSettings.speed);
 				Atomic.Tween.to(smoke, particleSettings.duration, {scale: 1, alpha: 0, x: Atomic.halfWidth + smoke.velocity.x, y: Atomic.halfHeight + smoke.velocity.y});
 				smoke.update = function()
 				{
 					graphic.alpha = this.alpha;
 					graphic.scale = this.scale;
-					graphic.angle = this.alpha * 360 * this.spin;
+					//graphic.angle = this.alpha * 360 * this.spin;
 
 					if(this.alpha <= 0)
 					{
