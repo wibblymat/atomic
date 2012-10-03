@@ -263,13 +263,13 @@ define(["Entity", "Atomic", "Utils", "Input"], function(Entity, Atomic, Utils, I
 		"mouseX": {
 			get: function()
 			{
-				return Input.mouseX + this.camera.x;
+				return (Input.mouseX + this.camera.x) / Atomic.scale;
 			}
 		},
 		"mouseY": {
 			get: function()
 			{
-				return Input.mouseY + this.camera.y;
+				return (Input.mouseY + this.camera.y) / Atomic.scale;
 			}
 		}
 	});
