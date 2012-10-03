@@ -39,7 +39,7 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 		this._drawMask = null;
 		this._tint = null;
 
-		this.angle = 0; // TODO: Not implemented
+		this.angle = 0;
 		// TODO: Blend modes in HTML5: https://github.com/pnitsch/BitmapData.js/blob/master/js/BitmapData.js
 		// Note the lack of INVERT
 		this.blend = null;
@@ -165,6 +165,7 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 			//if(clearFirst)
 				this.clear();
 			context.save();
+			context.webkitImageSmoothingEnabled = this.smooth;
 			if(this.flipped)
 			{
 				context.translate(this._buffer.width, 0);
