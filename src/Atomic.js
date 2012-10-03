@@ -17,13 +17,15 @@ define(function(require)
 		smooth: true,
 		camera: {x: 0, y: 0},
 		elapsed: 0,
+		layout: "relative",
 		backgroundColor: "#000000",
 		init: function(options)
 		{
 			atomic.width  = options.width     || atomic.width;
 			atomic.height = options.height    || atomic.height;
 			atomic.scale  = options.scale     || atomic.scale;
-			atomic.smooth = options.smooth    || atomic.smooth;
+			atomic.smooth = options.smooth === undefined || options.smooth;
+			atomic.layout = options.layout    || atomic.layout;
 			var container = options.container || document.body;
 			container.appendChild(atomic.stage);
 			// TODO: maybe abstract away atomic.stage elsewhere so that it could have multiple layers, be 2d or webgl or not even canvas or whatever
@@ -31,8 +33,7 @@ define(function(require)
 			atomic.stage.width = atomic.width * atomic.scale;
 			atomic.stage.height = atomic.height * atomic.scale;
 			atomic.stage.style.outline = 0;
-			atomic.stage.style.position = "absolute";
-			atomic.stage.style.outline = 0;
+			atomic.stage.style.position = atomic.layout;
 			atomic.stage.focus();
 
 			var resize = function()
