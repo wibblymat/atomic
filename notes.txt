@@ -65,9 +65,7 @@ iPhone/Android support would be nice I guess, but it is NOT a target of this pro
 Have to make decisions about which parts of the engine are static/global and which things are classes or just local objects
 Have a fullscreen mode. Find a way to have the resolution of the game be independent of the size of the canvas without the interpolation problem.
 Can we do anything to help people working with international keyboards? Give help on picking alternatives to WASD for example?
-My Key mapping appears to have got switched around... what did I do wrong here? Is this ok?
 Maybe re-think the no smartphones/tablets thing in the overview. Touch events aren't hard to add to the engine (though maybe hard to add to a game well). Hmm, ponder. I think that ignoring non-left mouse clicks is probably the right thing to do though.
-ES5 is well supported so if we want to use things like getters and setters we can.
 For performance, pre-draw tiled backgrounds to a larger canvas when the level starts and then just move that around. Also, mutiple canvases, perhaps one per layer. Only redraw layers that change. Only redraw *parts* of layers that change, even. Animated backgrounds will be lower performance of course, but we knew that.
 Or, remember that we can do 2D in webgl and use the graphics card.
 When loading an Ogmo level (or potentially other XML files), rather than writing the XML file to the filesystem cache, write the converted JSON instead to save doing again.
@@ -76,7 +74,7 @@ I've used some css colour attributes in my code, and FP uses integer colour valu
 I wonder if we can make the tween class work independently of Atomic? Just the time elapsed and event trigger...
 Collisions... use quad trees. Detect the "passed right through" type of collision (items never overlap). Maybe make it so that a graphic can have a hit mask (like a TileMap) which can be checked if the entity doesn't have one.
 Bit of a verbosity issue. Atomic.Assetmanager.assets["image/player"] is tooo long!
-Thinking about it, I can probably live without jquery, which is 7 or 8 times as big as my whole library... We only use it for event handling.
+Thinking about it, I can probably live without jquery, which is 7 or 8 times as big as my whole library... We only use it for event handling. Look at pubsub.js
 How to make Atomic more JSish. Don't require inheritance. You can do var level = new Atomic.World; level.update(myUpdateFunc); level.draw(myDrawFunc); instead - add a callback to an event handler, like jquery's $(foo).click();
 Entities need to have click(), mouseover(), etc. event hooks.
 
@@ -106,7 +104,9 @@ Early (pre 1.0) versions will only support the latest stable release of Chrome.
 
 The library is released under a 2-clause BSD license (The "Simplified BSD License").
 
-The library will be changed to use requireJS, but will not force the end user to use it. For details of how, see https://github.com/requirejs/example-libglobal
+The library is built with requireJS, but will not force the end user to use it. For details of how, see https://github.com/requirejs/example-libglobal
+
+ECMAScript 5 is very well supported on modern browsers so you we will use those features without worrying about fallback or compatibility.
 
 Documentation
 =============

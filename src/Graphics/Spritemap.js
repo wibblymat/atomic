@@ -2,30 +2,21 @@
 "use strict";
 define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], function(Utils, Graphic, Image, Atomic, Animation)
 {
-	function Spritemap(source, frameWidth, frameHeight, callback)
+	function Spritemap(tilesheet, callback)
 	{
-		frameWidth = frameWidth || 0;
-		frameHeight = frameHeight || 0;
-
 		this.complete = true;
 		this.callback = callback || null;
 		this.rate = 1;
 
-		this._rectangle = {x: 0, y: 0, width: frameWidth, height: frameHeight};
-		if(!frameWidth) this._rectangle.width = source.width;
-		if(!frameHeight) this._rectangle.height = source.height;
-		this._width = source.width;
-		this._height = source.height;
-		this._columns = this._width / this._rectangle.width;
-		this._rows = this._height / this._rectangle.height;
-		this._frameCount = this._columns * this._rows;
+		this.tilesheet = tilesheet;
+		this._frameCount = this.tilesheet.columns * this.tilesheet.rows;
 		this._animations = {};
 		this._animation = null;
 		this._index = null;
 		this._frame = null;
 		this._timer = 0;
 
-		Image.call(this, source, this._rectangle);
+		Image.call(this, this.tilesheet.getTileAtIndex(0));
 		this.callback = callback;
 		this.updateBuffer();
 		this.active = true;
@@ -35,10 +26,7 @@ define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], f
 	Spritemap.prototype.updateBuffer = function(clearBefore)
 	{
 		clearBefore = clearBefore || false;
-		// get position of the current frame
-		this._rectangle.x = this._rectangle.width * this._frame;
-		this._rectangle.y = Math.floor(this._rectangle.x / this._width) * this._rectangle.height;
-		this._rectangle.x %= this._width;
+		this._source = this.tilesheet.getTileAtIndex(this._frame);
 
 		// update the buffer
 		Image.prototype.updateBuffer.call(this, clearBefore);
@@ -46,18 +34,18 @@ define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], f
 
 	Spritemap.prototype.update = function()
 	{
-		if (this._animation && !this.complete)
+		if(this._animation && !this.complete)
 		{
 			this._timer += this._animation.frameRate * Atomic.elapsed * this.rate;
 			if (this._timer >= 1)
 			{
-				while (this._timer >= 1)
+				while(this._timer >= 1)
 				{
-					this._timer --;
-					this._index ++;
+					this._timer--;
+					this._index++;
 					if (this._index === this._animation.frameCount)
 					{
-						if (this._animation.loop)
+						if(this._animation.loop)
 						{
 							this._index = 0;
 							if(this.callback) this.callback();
@@ -74,7 +62,7 @@ define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], f
 				var lastFrame = this._frame;
 				if (this._animation)
 				{
-					this._frame = Math.round(this._animation.frames[this._index]);
+					this._frame = this._animation.frames[this._index];
 					if(lastFrame !== this._frame)
 					{
 						this.updateBuffer();
@@ -118,9 +106,7 @@ define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], f
 
 	Spritemap.prototype.getFrame = function(column, row)
 	{
-		column = column || 0;
-		row    = row    || 0;
-		return (row % this._rows) * this._columns + (column % this._columns);
+		return this.tilesheet.index(column, row);
 	};
 
 	Spritemap.prototype.setFrame = function(column, row)
@@ -128,7 +114,7 @@ define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], f
 		column = column || 0;
 		row    = row    || 0;
 		this._animation = null;
-		var frame = (row % this._rows) * this._columns + (column % this._columns);
+		var frame = this.getFrame(column, row);
 		if(this._frame === frame) return;
 		this._frame = frame;
 		this._timer = 0;
@@ -181,10 +167,10 @@ define(["Utils", "Graphic", "Graphics/Image", "Atomic", "Graphics/Animation"], f
 			get: function() { return this._frameCount; }
 		},
 		"columns": {
-			get: function() { return this._columns; }
+			get: function() { return this.tilesheet.columns; }
 		},
 		"rows": {
-			get: function() { return this._rows; }
+			get: function() { return this.tilesheet.rows; }
 		},
 		"currentAnimation": {
 			get: function(){ return this._animation ? this._animation.name : ""; }

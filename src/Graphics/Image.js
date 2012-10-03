@@ -48,7 +48,7 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 		this.scale = 1;
 		this.scaleX = 1;
 		this.scaleY = 1;
-		this.smooth = false; // TODO: Not implemented
+		this.smooth = false;
 
 		// TODO: the xor property is just a test
 		this.xor = false;
@@ -198,7 +198,6 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 	{
 		// TODO: Tidy up. This is now only for TINTING_COLORIZE
 		// MIGHT be able to do the COLORIZE using globalCompositeMode = "darker"
-		/*jshint bitwise: false */
 		if(this._tinting === 0)
 		{
 			this._tint = null;
@@ -212,6 +211,7 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 
 		this._tint = {};
 
+		/*jshint bitwise: false */
 		this._tint.redMultiplier   = this._tintMode * (1.0 - this._tinting) + (1-this._tintMode) * (this._tinting * (Number(this._color >> 16 & 0xFF) / 255 - 1) + 1);
 		this._tint.greenMultiplier = this._tintMode * (1.0 - this._tinting) + (1-this._tintMode) * (this._tinting * (Number(this._color >> 8 & 0xFF) / 255 - 1) + 1);
 		this._tint.blueMultiplier  = this._tintMode * (1.0 - this._tinting) + (1-this._tintMode) * (this._tinting * (Number(this._color & 0xFF) / 255 - 1) + 1);

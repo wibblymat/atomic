@@ -4,19 +4,14 @@ define(["Utils", "Graphic", "Space"], function(Utils, Graphic, Space)
 {
 	// The original of this in FP extended the FP Canvas class... I think I can do something simpler here with HTML5 canvas
 	// Also, for simplicity, we always use grid rows and columns
-	function Tilemap(tileset, width, height, tileWidth, tileHeight)
+	function Tilemap(tilesheet, width, height)
 	{
 		Graphic.call(this);
-		this.tileset = tileset;
+		this.tilesheet = tilesheet;
 		this.width = width;
 		this.height = height;
-		this.tileWidth = tileWidth;
-		this.tileHeight = tileHeight;
-		this.rows = Math.ceil(height/tileHeight);
-		this.columns = Math.ceil(width/tileWidth);
-		this.setColumns = Math.ceil(tileset.width / tileWidth);
-		this.setRows = Math.ceil(tileset.height / tileHeight);
-		this.setCount = this.setColumns * this.setRows;
+		this.rows = Math.ceil(height/tilesheet.tileHeight);
+		this.columns = Math.ceil(width/tilesheet.tileWidth);
 
 		this.map = new Space(this.columns, this.rows);
 		this.canvas = document.createElement("canvas");
@@ -61,28 +56,25 @@ define(["Utils", "Graphic", "Space"], function(Utils, Graphic, Space)
 	{
 		if(index === undefined) index = 0;
 
-		index %= this.setCount;
+		index %= this.tilesheet.length;
 		column %= this.columns;
 		row %= this.rows;
 
-		var setX = (index % this.setColumns) * this.tileWidth;
-		var setY = Math.floor(index / this.setColumns) * this.tileHeight;
-
-		var mapX = column * this.tileWidth;
-		var mapY = row * this.tileHeight;
+		var mapX = column * this.tilesheet.tileWidth;
+		var mapY = row * this.tilesheet.tileHeight;
 
 		this.map.set(column, row, index);
 		if(index >= 0)
 		{
-			this.canvas.getContext("2d").drawImage(this.tileset, setX, setY, this.tileWidth, this.tileHeight, mapX, mapY, this.tileWidth, this.tileHeight);
+			this.canvas.getContext("2d").drawImage(this.tilesheet.getTileAtIndex(index), mapX, mapY);
 		}
 		else
 		{
-			this.canvas.getContext("2d").clearRect(mapX, mapY, this.tileWidth, this.tileHeight);
+			this.canvas.getContext("2d").clearRect(mapX, mapY, this.tilesheet.tileWidth, this.tilesheet.tileHeight);
 		}
 	};
 
-	Object.defineProperties( Tilemap.prototype,
+	Object.defineProperties(Tilemap.prototype,
 	{
 	});
 

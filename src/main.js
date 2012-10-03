@@ -23,6 +23,7 @@ define(function(require)
 	Graphics.Spritemap   = require("Graphics/Spritemap");
 	Graphics.TiledImage  = require("Graphics/TiledImage");
 	Graphics.Tilemap     = require("Graphics/Tilemap");
+	Graphics.Tilesheet   = require("Graphics/Tilesheet");
 
 	var Masks    = {};
 	Masks.Grid   = require("Masks/Grid");
