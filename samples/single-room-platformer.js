@@ -19,14 +19,15 @@ window.onload = function()
 		var height = level["@height"];
 
 		var tiles = Atomic.AssetManager.assets["image/tiles"];
+		var tilesheet = new Atomic.Graphics.Tilesheet(tiles, 50, 50);
 
-		var bgTiles = new Atomic.Graphics.Tilemap(tiles, width, height, 50, 50);
+		var bgTiles = new Atomic.Graphics.Tilemap(tilesheet, width, height);
 		bgTiles.loadFromString(level.Background, ",");
 		bgTiles.scrollX = 0.5;
 		bgTiles.scollY = 0.5;
 		world.addGraphic(bgTiles, 10);
 
-		var fgTiles = new Atomic.Graphics.Tilemap(tiles, width, height, 50, 50);
+		var fgTiles = new Atomic.Graphics.Tilemap(tilesheet, width, height);
 		var solids = new Atomic.Masks.Grid(width, height, 50, 50);
 		world.addGraphic(fgTiles, -10);
 		world.addMask(solids, "Solid");

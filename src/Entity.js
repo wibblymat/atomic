@@ -293,7 +293,6 @@ define(["Atomic", "Mask", "Point"], function(Atomic, Mask, Point)
 		{
 			// TODO: Stuff with layers. Involves expanding Atomic.stage
 			var target = this.renderTarget || Atomic.stage;
-			var context = target.getContext("2d");
 
 			if(this.graphic.relative)
 			{

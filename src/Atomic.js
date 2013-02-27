@@ -1,10 +1,11 @@
 /*global define */
 "use strict";
-define(function(require)
+define(function()
 {
 	window.URL = window.URL || window.webkitURL;
 	window.performance = window.performance || window.msperformance || {};
-	window.performance.now = window.performance.now || window.performance.webkitNow || Date.now;
+	window.performance.now = window.performance.now ||
+		window.performance.webkitNow || Date.now;
 
 	var frameStart = 0;
 	var world = null;
@@ -28,7 +29,9 @@ define(function(require)
 			atomic.layout = options.layout    || atomic.layout;
 			var container = options.container || document.body;
 			container.appendChild(atomic.stage);
-			// TODO: maybe abstract away atomic.stage elsewhere so that it could have multiple layers, be 2d or webgl or not even canvas or whatever
+			// TODO: maybe abstract away atomic.stage elsewhere so that it could
+			// have multiple layers, be 2d or webgl or not even canvas or
+			// whatever
 			atomic.stage.style.backgroundColor = atomic.backgroundColor;
 			atomic.stage.width = atomic.width * atomic.scale;
 			atomic.stage.height = atomic.height * atomic.scale;
@@ -43,7 +46,8 @@ define(function(require)
 			$(window).resize(resize);
 			resize();
 
-			// TODO: Make the image smoothing option cross-browser, similar to rAF
+			// TODO: Make the image smoothing option cross-browser, similar to
+			// the rAF shim
 			atomic.stage.getContext("2d").scale(atomic.scale, atomic.scale);
 			atomic.stage.getContext("2d").webkitImageSmoothingEnabled = atomic.smooth; // TODO: webkit prefix!
 			frameStart = window.performance.now();
@@ -106,7 +110,8 @@ define(function(require)
 	});
 
 	// We don't size the canvas or add it to the document until init()
-	// However, we still create the element now so that it is available in sub-modules as they load
+	// However, we still create the element now so that it is available in
+	// sub-modules as they load
 	atomic.stage = document.createElement("canvas");
 	atomic.stage.tabIndex = 1; // Make the canvas focusable
 
@@ -116,7 +121,8 @@ define(function(require)
 		frameRequest = window.requestAnimationFrame(mainLoop);
 
 		var timestamp = window.performance.now();
-		atomic.elapsed = (timestamp - frameStart) / 1000; // Work in seconds rather than milliseconds
+		// Work in seconds rather than milliseconds
+		atomic.elapsed = (timestamp - frameStart) / 1000;
 		frameStart = timestamp;
 
 		if(nextworld)
@@ -155,16 +161,16 @@ define(function(require)
 (function()
 {
 	var lastTime = 0;
-	var vendors = ['ms', 'moz', 'webkit', 'o'];
+	var vendors = ["ms", "moz", "webkit", "o"];
 	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x)
 	{
-		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-		window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+		window.requestAnimationFrame = window[vendors[x]+"RequestAnimationFrame"];
+		window.cancelAnimationFrame = window[vendors[x]+"CancelAnimationFrame"] || window[vendors[x]+"CancelRequestAnimationFrame"];
 	}
 
 	if(!window.requestAnimationFrame)
 	{
-		window.requestAnimationFrame = function(callback, element)
+		window.requestAnimationFrame = function(callback)
 		{
 			var currTime = new Date().getTime();
 			var timeToCall = Math.max(0, 16 - (currTime - lastTime));

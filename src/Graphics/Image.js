@@ -138,8 +138,8 @@ define(["Utils", "Graphic"], function(Utils, Graphic)
 
 		context.translate(temp.x, temp.y);
 		context.rotate(this.angle * Utils.RAD);
-		context.translate(-this.originX * scaleX, -this.originY * scaleY);
 		context.scale(scaleX, scaleY);
+		context.translate(-this.originX, -this.originY);
 		context.globalAlpha = this.alpha;
 		context.drawImage(this._buffer, 0, 0);
 		context.restore();

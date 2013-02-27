@@ -1,14 +1,17 @@
 /*global define */
 "use strict";
-define(["Entity", "Atomic", "Utils", "Input"], function(Entity, Atomic, Utils, Input)
+define(["Entity", "Atomic", "Utils", "Input"],
+function(Entity, Atomic, Utils, Input)
 {
-	// The FP version of this is at https://github.com/Draknek/FlashPunk/blob/master/net/flashpunk/World.as
+	// The FP version of this is at
+	// https://github.com/Draknek/FlashPunk/blob/master/net/flashpunk/World.as
 	// However, not sure we'll be following all that closely
 
 	//TODO: Events when added to or removed from the stage
 	function World()
 	{
-		this.camera = {x: 0, y: 0}; // In the original this was a Point. Overkill here though probably.
+		// In the original this was a Point. Overkill here though probably.
+		this.camera = {x: 0, y: 0};
 		this.visible = true;
 		this.entities = [];
 	}
@@ -16,7 +19,8 @@ define(["Entity", "Atomic", "Utils", "Input"], function(Entity, Atomic, Utils, I
 	World.prototype.add = function(entity)
 	{
 		this.entities.push(entity);
-		if(!entity._world) entity._world = this; // Icky, playing with "private" members from out here
+		// Icky, playing with "private" members from out here
+		if(!entity._world) entity._world = this;
 		entity.added();
 		return entity;
 	};

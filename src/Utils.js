@@ -17,24 +17,16 @@ define({
 	},
 	choose: function()
 	{
-		var c = (arguments.length === 1 && (arguments[0].splice)) ? arguments[0] : arguments;
+		var c = (arguments.length === 1 && (arguments[0].splice)) ?
+			arguments[0] :
+			arguments;
 		return c[this.rand(c.length)];
 	},
 	clamp: function(value, min, max)
 	{
-		if(max > min)
-		{
-			if(value < min) return min;
-			else if(value > max) return max;
-			else return value;
-		}
-		else
-		{
-			// Min/max swapped
-			if(value < max) return max;
-			else if(value > min) return min;
-			else return value;
-		}
+		if(max < min) return this.clamp(value, max, min);
+
+		return Math.max(min, Math.min(max, value));
 	},
 	distance: function(x1, y1, x2, y2)
 	{
@@ -48,21 +40,20 @@ define({
 	},
 	distanceRects: function(x1, y1, w1, h1, x2, y2, w2, h2)
 	{
-		if(x1 < x2 + w2 && x2 < x1 + w1)
+		if(x1 > x2) return this.distanceRects(x2, y2, w2, h2, x1, y1, w1, h1);
+
+		var xOverlap = x2 < x1 + w1;
+		var yOverlap = y1 < y2 + h2 && y2 < y1 + h1;
+
+		if(xOverlap)
 		{
-			if(y1 < y2 + h2 && y2 < y1 + h1) return 0;
+			if(yOverlap) return 0;
 			if(y1 > y2) return y1 - (y2 + h2);
 			return y2 - (y1 + h1);
 		}
-		if(y1 < y2 + h2 && y2 < y1 + h1)
+		if(yOverlap)
 		{
-			if(x1 > x2) return x1 - (x2 + w2);
 			return x2 - (x1 + w1);
-		}
-		if(x1 > x2)
-		{
-			if(y1 > y2) return this.distance(x1, y1, (x2 + w2), (y2 + h2));
-			return this.distance(x1, y1 + h1, x2 + w2, y2);
 		}
 		if(y1 > y2) return this.distance(x1 + w1, y1, x2, y2 + h2);
 		return this.distance(x1 + w1, y1 + h1, x2, y2);
@@ -81,12 +72,14 @@ define({
 	},
 	random: function()
 	{
-		//TODO: FP has this method because it allows you to set the seed and therefore "replay" random events. I haven't done that yet
+		//TODO: FP has this method because it allows you to set the seed and
+		// therefore "replay" random events. I haven't done that yet
 		return Math.random();
 	},
 	removeElement: function(item, array, all)
 	{
-		// The all parameter determines whether we should stop after finding one occurrence or keep going
+		// The all parameter determines whether we should stop after finding one
+		// occurrence or keep going
 		all = !!all;
 		var i = array.length - 1;
 		while(i >= 0)
@@ -108,16 +101,9 @@ define({
 	},
 	scaleClamp: function(value, min, max, min2, max2)
 	{
-		value = min2 + ((value - min) / (max - min)) * (max2 - min2);
-		if(max2 > min2)
-		{
-			value = value < max2 ? value : max2;
-			return value > min2 ? value : min2;
-		}
-		value = value < min2 ? value : min2;
-		return value > max2 ? value : max2;
+		return this.clamp(this.scale(value, min, max, min2, max2), min2, max2);
 	},
-	// JXON implementation, based on https://developer.mozilla.org/en-US/docs/JXON
+	// JXON implementation, see https://developer.mozilla.org/en-US/docs/JXON
 	parseText: function(sValue)
 	{
 		if(/^\s*$/.test(sValue))

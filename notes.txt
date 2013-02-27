@@ -1,3 +1,19 @@
+So, took a long break from this, learned a lot more about JavaScript. Decided some more things.
+
+Atomic should not be single-file library. What you get should be all of the individual source files. They should be as decoupled as possible.
+
+You will also get a yeoman generator. This will set up your project, with the Atomic stuff all in place and loadable with requirejs, grunt for linting/local server/tests/build. The build will use r.js and a minifier. The stubbed out project will have a main HTML file including a canvas. The stub will include a menu, title screen, credits and a mock-up platform game. There will also be a second, debug, HTML page. This also loads the same canvas and code but enables debug mode and adds some extra UI elements in the HTML. You should be able to pause the game (stop the main loop from doing anything) and step through frame by frame.
+
+Nice to have would be a way to tweak graphics and maps live and have it reflected in the running game. You obviously then need to be able to save the updated resources back out. Interacting with Dropbox would be COOL.
+
+Also, we should pitch at specifically being a game jam tool which means more opinionated and maybe less configurable in places where it helps make a particular kind of game quicker. Ultimately this is mostly for me, so add the features that I want rather than guessing at features someone else might want.
+
+Some things aren't decided yet though. Objects/Inheritance versus Entities/Components? Code or configuration? Components and configuration seem like the best way to go for a "real" game development system, but do they make jamming easier? More investigation required. Particularly note that external configuration is meant to benefit your team mates, which you wont have in Ludum Dare.
+
+-----------------------------------------------------------
+
+
+
 Engine/Template design
 ----------------------
 This document will one day evolve into the engine hacking guide, no doubt.
@@ -38,6 +54,8 @@ Far off dreamland ideas:
 Things to read:
 ---------------
 http://backbonetutorials.com/organizing-backbone-using-modules/
+http://www.abundant-music.com/
+http://www.youtube.com/watch?v=HRypuCJH9OI
 https://github.com/bjorn/tiled/wiki/TMX-Map-Format
 http://www.khronos.org/registry/typedarray/specs/latest/
 http://animation.about.com/od/flashanimationtutorials/qt/flasheasetween.htm
